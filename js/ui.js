@@ -6,10 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeVisitorToast = document.getElementById('close-visitor-toast');
     const gameForm = document.getElementById('game-form');
     const studioForm = document.getElementById('studio-form');
-    const filterReviewsForm = document.getElementById('filter-reviews-form');
-    const filterReviewsGame = document.getElementById('filter-reviews-game');
-    const resetReviewsFilter = document.getElementById('reset-reviews-filter');
-    const reviewsEmptyState = document.getElementById('reviews-empty-state');
     const reviewForm = document.getElementById('review-form');
     const listFilterButtons = document.querySelectorAll('[data-list-filter]');
     const listsEmptyState = document.getElementById('lists-empty-state');
@@ -146,8 +142,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (modalId === 'review-modal') {
             const modalTitle = document.getElementById('review-modal-title');
+            const submitButton = reviewForm ? reviewForm.querySelector('button[type="submit"]') : null;
             if (mode === 'edit') {
                 modalTitle.textContent = 'Editar Avaliação';
+                if (submitButton) {
+                    submitButton.textContent = 'Salvar Alterações';
+                }
                 document.getElementById('review-id').value = trigger.dataset.reviewId || '';
                 document.getElementById('review-game').value = trigger.dataset.reviewGame || '';
                 document.getElementById('review-score').value = trigger.dataset.reviewScore || '';
@@ -155,10 +155,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('review-comment').value = trigger.dataset.reviewComment || '';
             } else {
                 modalTitle.textContent = 'Nova Avaliação';
+                if (submitButton) {
+                    submitButton.textContent = 'Publicar Avaliação';
+                }
                 if (reviewForm) {
                     reviewForm.reset();
                 }
                 document.getElementById('review-id').value = '';
+            }
+        }
+
+        if (modalId === 'delete-review-modal') {
+            const deleteIdInput = document.getElementById('delete-review-id');
+            const deleteNameText = document.getElementById('delete-review-name');
+            if (deleteIdInput) {
+                deleteIdInput.value = trigger.dataset.reviewId || '';
+            }
+            if (deleteNameText) {
+                deleteNameText.textContent = trigger.dataset.reviewGameTitle || '';
             }
         }
 
@@ -230,47 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeAllModals();
         }
     });
-
-    if (filterReviewsForm && filterReviewsGame) {
-        filterReviewsForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const selectedGameId = filterReviewsGame.value;
-            const cards = document.querySelectorAll('#reviews-grid .review-card');
-            let visibleCount = 0;
-
-            cards.forEach((card) => {
-                const cardGameId = card.dataset.gameId || '';
-                const match = !selectedGameId || cardGameId === selectedGameId;
-                card.classList.toggle('hidden', !match);
-                if (match) {
-                    visibleCount += 1;
-                }
-            });
-
-            if (reviewsEmptyState) {
-                reviewsEmptyState.classList.toggle('hidden', visibleCount > 0);
-            }
-        });
-    }
-
-    if (resetReviewsFilter && filterReviewsGame) {
-        resetReviewsFilter.addEventListener('click', () => {
-            filterReviewsGame.value = '';
-            document.querySelectorAll('#reviews-grid .review-card').forEach((card) => {
-                card.classList.remove('hidden');
-            });
-            if (reviewsEmptyState) {
-                reviewsEmptyState.classList.add('hidden');
-            }
-        });
-    }
-
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            closeAllModals();
-        });
-    }
 
     listFilterButtons.forEach((button) => {
         button.addEventListener('click', () => {

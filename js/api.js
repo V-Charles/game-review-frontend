@@ -1,5 +1,6 @@
 const API_BASE_URL = 'https://game-review-api-zftj.onrender.com';
 const SESSION_STORAGE_KEY = 'gamereview_session';
+const REQUEST_TIMEOUT_MS = 25000;
 
 function getSession() {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -138,6 +139,14 @@ function getReviewStatusBadgeClass(status) {
     return 'badge-cyan';
 }
 
+function formatReviewStatusLabel(status) {
+    const normalized = String(status || '').toUpperCase();
+    if (normalized === 'QUERO_JOGAR') {
+        return 'QUERO JOGAR';
+    }
+    return normalized || 'AVALIADO';
+}
+
 function buildGameCoverStyle(coverUrl) {
     if (!coverUrl) {
         return '';
@@ -192,10 +201,14 @@ async function apiRequest(endpoint, options = {}) {
         headers['X-Idempotency-Key'] = generateIdempotencyKey();
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
     const fetchOptions = {
         ...options,
         method,
-        headers
+        headers,
+        signal: options.signal || controller.signal
     };
 
     if (method === 'GET' && !fetchOptions.cache) {
@@ -204,7 +217,17 @@ async function apiRequest(endpoint, options = {}) {
 
     delete fetchOptions.skipAuth;
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
+    let response;
+    try {
+        response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
+    } catch (error) {
+        if (error && error.name === 'AbortError') {
+            throw new Error('O servidor demorou para responder. Aguarde alguns segundos e tente novamente.');
+        }
+        throw new Error('Falha de conexão com a API. Verifique sua internet ou aguarde o servidor iniciar.');
+    } finally {
+        clearTimeout(timeoutId);
+    }
 
     if (response.status === 204) {
         return null;
@@ -231,6 +254,15 @@ function showFeedbackBanner(element, message, type) {
     element.textContent = message;
     element.classList.remove('hidden', 'is-error', 'is-success');
     element.classList.add(type === 'error' ? 'is-error' : 'is-success');
+}
+
+function hideFeedbackBanner(element) {
+    if (!element) {
+        return;
+    }
+    element.textContent = '';
+    element.classList.add('hidden');
+    element.classList.remove('is-error', 'is-success');
 }
 
 function setSubmitButtonState(button, isLoading, loadingText, defaultText) {
@@ -393,7 +425,7 @@ function renderHomeReviews(reviews) {
     }
 
     grid.innerHTML = reviews.slice(0, 3).map((review) => {
-        const status = escapeHtml(review.status || 'AVALIADO');
+        const status = escapeHtml(formatReviewStatusLabel(review.status));
         const badgeClass = getReviewStatusBadgeClass(review.status);
         const score = review.nota !== null && review.nota !== undefined ? Number(review.nota).toFixed(1) : '--';
         const gameTitle = escapeHtml(
@@ -1127,11 +1159,417 @@ function initGamesPage() {
     loadGamesAndStudios();
 }
 
+function initReviewsPage() {
+    const reviewsGrid = document.getElementById('reviews-grid');
+    if (!reviewsGrid) {
+        return;
+    }
+
+    const session = requireAuth();
+    if (!session) {
+        return;
+    }
+
+    const reviewsFeedback = document.getElementById('reviews-feedback');
+    const reviewModalFeedback = document.getElementById('review-modal-feedback');
+    const filterReviewsForm = document.getElementById('filter-reviews-form');
+    const filterReviewsGame = document.getElementById('filter-reviews-game');
+    const resetReviewsFilter = document.getElementById('reset-reviews-filter');
+    const reviewsEmptyState = document.getElementById('reviews-empty-state');
+    const reviewForm = document.getElementById('review-form');
+    const reviewGameSelect = document.getElementById('review-game');
+    const reloadReviewGamesBtn = document.getElementById('reload-review-games');
+    const confirmDeleteReviewBtn = document.getElementById('confirm-delete-review');
+
+    let reviewsCache = [];
+    let gamesCache = [];
+    let isLoadingGames = false;
+
+    function populateGameSelects(selectedModalGameId = '') {
+        const gameOptions = gamesCache.map((game) => {
+            const id = escapeHtml(game.id);
+            const title = escapeHtml(game.titulo || game.nome || `Jogo #${game.id}`);
+            return `<option value="${id}">${title}</option>`;
+        }).join('');
+
+        if (filterReviewsGame) {
+            const currentFilter = filterReviewsGame.value;
+            filterReviewsGame.innerHTML = `<option value="">Todos os jogos cadastrados</option>${gameOptions}`;
+            if (currentFilter) {
+                filterReviewsGame.value = currentFilter;
+            }
+        }
+
+        if (reviewGameSelect) {
+            if (!gamesCache.length) {
+                reviewGameSelect.innerHTML = '<option value="">Nenhum jogo cadastrado (cadastre em Jogos)</option>';
+                if (reloadReviewGamesBtn) {
+                    reloadReviewGamesBtn.classList.remove('hidden');
+                }
+                return;
+            }
+            reviewGameSelect.innerHTML = `<option value="">Selecione um jogo...</option>${gameOptions}`;
+            if (selectedModalGameId) {
+                reviewGameSelect.value = String(selectedModalGameId);
+            }
+            if (reloadReviewGamesBtn) {
+                reloadReviewGamesBtn.classList.add('hidden');
+            }
+        }
+    }
+
+    async function refreshReviewGames(selectedModalGameId = '') {
+        if (isLoadingGames) {
+            return;
+        }
+        isLoadingGames = true;
+        hideFeedbackBanner(reviewModalFeedback);
+
+        if (reloadReviewGamesBtn) {
+            reloadReviewGamesBtn.disabled = true;
+            reloadReviewGamesBtn.textContent = 'Carregando...';
+        }
+
+        if (reviewGameSelect && !gamesCache.length) {
+            reviewGameSelect.innerHTML = '<option value="">Carregando jogos...</option>';
+        }
+
+        try {
+            const gamesPayload = await apiRequest('/jogos', { method: 'GET' });
+            gamesCache = extractListFromResponse(gamesPayload);
+            populateGameSelects(selectedModalGameId);
+        } catch (error) {
+            if (error.status === 401 || error.status === 403) {
+                clearSession();
+                window.location.href = 'login.html';
+                return;
+            }
+            if (reviewGameSelect) {
+                reviewGameSelect.innerHTML = '<option value="">Erro ao carregar jogos</option>';
+            }
+            if (reloadReviewGamesBtn) {
+                reloadReviewGamesBtn.classList.remove('hidden');
+            }
+            const errMsg = error.message || 'Não foi possível carregar a lista de jogos.';
+            showFeedbackBanner(reviewModalFeedback, errMsg, 'error');
+            showFeedbackBanner(reviewsFeedback, errMsg, 'error');
+        } finally {
+            isLoadingGames = false;
+            if (reloadReviewGamesBtn) {
+                reloadReviewGamesBtn.disabled = false;
+                reloadReviewGamesBtn.textContent = 'Recarregar jogos';
+            }
+        }
+    }
+
+    function resolveReviewGameInfo(review) {
+        const directGame = review.jogo;
+        if (directGame && directGame.id) {
+            return {
+                id: String(directGame.id),
+                title: directGame.titulo || directGame.nome || 'Jogo avaliado'
+            };
+        }
+        const gameId = review.jogoId ? String(review.jogoId) : '';
+        if (gameId) {
+            const matched = gamesCache.find((item) => String(item.id) === gameId);
+            return {
+                id: gameId,
+                title: matched ? (matched.titulo || matched.nome) : (review.jogoTitulo || `Jogo #${gameId}`)
+            };
+        }
+        return {
+            id: '',
+            title: review.jogoTitulo || 'Jogo avaliado'
+        };
+    }
+
+    function resolveReviewAuthorInfo(review) {
+        const directUser = review.usuario;
+        const authorId = directUser && directUser.id
+            ? String(directUser.id)
+            : (review.usuarioId ? String(review.usuarioId) : '');
+        const authorName = (directUser && (directUser.userName || directUser.username))
+            || review.usuarioUserName
+            || 'jogador';
+
+        const isOwnerById = authorId && String(session.id) === authorId;
+        const isOwnerByName = !authorId && authorName.toLowerCase() === String(session.userName || '').toLowerCase();
+
+        return {
+            id: authorId,
+            name: authorName,
+            isOwner: Boolean(isOwnerById || isOwnerByName)
+        };
+    }
+
+    function renderReviews(reviews) {
+        const selectedGameId = filterReviewsGame ? filterReviewsGame.value : '';
+        const filtered = selectedGameId
+            ? reviews.filter((review) => resolveReviewGameInfo(review).id === String(selectedGameId))
+            : reviews;
+
+        if (!reviews.length) {
+            reviewsGrid.innerHTML = '';
+            if (reviewsEmptyState) {
+                reviewsEmptyState.querySelector('p').textContent = 'Nenhuma avaliação publicada até o momento. Clique em "+ Nova Avaliação" para publicar.';
+                reviewsEmptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (!filtered.length) {
+            reviewsGrid.innerHTML = '';
+            if (reviewsEmptyState) {
+                reviewsEmptyState.querySelector('p').textContent = 'Nenhuma avaliação encontrada para o jogo selecionado.';
+                reviewsEmptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (reviewsEmptyState) {
+            reviewsEmptyState.classList.add('hidden');
+        }
+
+        reviewsGrid.innerHTML = filtered.map((review) => {
+            const id = review.id;
+            const statusRaw = String(review.status || 'JOGANDO').toUpperCase();
+            const statusLabel = escapeHtml(formatReviewStatusLabel(statusRaw));
+            const badgeClass = getReviewStatusBadgeClass(statusRaw);
+            const scoreNumeric = review.nota !== null && review.nota !== undefined ? Number(review.nota) : null;
+            const scoreFormatted = scoreNumeric !== null && !Number.isNaN(scoreNumeric) ? scoreNumeric.toFixed(1) : '--';
+            const scoreInputVal = scoreNumeric !== null && !Number.isNaN(scoreNumeric) ? String(scoreNumeric) : '';
+            const gameInfo = resolveReviewGameInfo(review);
+            const gameTitle = escapeHtml(gameInfo.title);
+            const comment = escapeHtml(review.comentario || 'Sem comentário adicional.');
+            const authorInfo = resolveReviewAuthorInfo(review);
+            const authorName = escapeHtml(authorInfo.name);
+            const dateLabel = formatDateBr(review.dataAvaliacao || review.createdAt);
+
+            const ownerActionsHtml = authorInfo.isOwner
+                ? `
+                    <div class="card-actions">
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-open-modal="review-modal"
+                            data-modal-mode="edit"
+                            data-review-id="${escapeHtml(id)}"
+                            data-review-game="${escapeHtml(gameInfo.id)}"
+                            data-review-score="${escapeHtml(scoreInputVal)}"
+                            data-review-status="${escapeHtml(statusRaw)}"
+                            data-review-comment="${comment}">
+                            Editar
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm"
+                            data-open-modal="delete-review-modal"
+                            data-review-id="${escapeHtml(id)}"
+                            data-review-game-title="${gameTitle}">
+                            Excluir
+                        </button>
+                    </div>
+                `
+                : '';
+
+            return `
+                <article class="card review-card" data-game-id="${escapeHtml(gameInfo.id)}">
+                    <div class="card-body">
+                        <div class="flex-between">
+                            <span class="badge ${badgeClass}">${statusLabel}</span>
+                            <span class="score-chip">${escapeHtml(scoreFormatted)} / 10</span>
+                        </div>
+                        <h2 class="card-title">${gameTitle}</h2>
+                        <p class="card-description">${comment}</p>
+                        ${ownerActionsHtml}
+                    </div>
+                    <div class="card-footer flex-between">
+                        <span class="author-tag">@${authorName}</span>
+                        <span class="mono-label">${escapeHtml(dateLabel)}</span>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    async function loadReviewsAndGames() {
+        isLoadingGames = true;
+        try {
+            const [reviewsRes, gamesRes] = await Promise.allSettled([
+                apiRequest('/avaliacoes', { method: 'GET' }),
+                apiRequest('/jogos', { method: 'GET' })
+            ]);
+
+            const unauthorized = [reviewsRes, gamesRes].find(
+                (res) => res.status === 'rejected' && (res.reason.status === 401 || res.reason.status === 403)
+            );
+            if (unauthorized) {
+                clearSession();
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (gamesRes.status === 'fulfilled') {
+                gamesCache = extractListFromResponse(gamesRes.value);
+                populateGameSelects();
+            } else {
+                if (reviewGameSelect) {
+                    reviewGameSelect.innerHTML = '<option value="">Erro ao carregar jogos</option>';
+                }
+                if (reloadReviewGamesBtn) {
+                    reloadReviewGamesBtn.classList.remove('hidden');
+                }
+                const errMsg = gamesRes.reason.message || 'Não foi possível carregar os jogos.';
+                showFeedbackBanner(reviewModalFeedback, errMsg, 'error');
+                showFeedbackBanner(reviewsFeedback, errMsg, 'error');
+            }
+
+            if (reviewsRes.status === 'fulfilled') {
+                reviewsCache = extractListFromResponse(reviewsRes.value);
+                renderReviews(reviewsCache);
+            } else {
+                reviewsGrid.innerHTML = '';
+                showFeedbackBanner(reviewsFeedback, reviewsRes.reason.message || 'Não foi possível carregar as avaliações.', 'error');
+            }
+        } finally {
+            isLoadingGames = false;
+        }
+    }
+
+    if (reloadReviewGamesBtn) {
+        reloadReviewGamesBtn.addEventListener('click', () => {
+            refreshReviewGames();
+        });
+    }
+
+    document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('[data-open-modal="review-modal"]');
+        if (!trigger) {
+            return;
+        }
+        hideFeedbackBanner(reviewModalFeedback);
+        const targetGameId = trigger.dataset.reviewGame || '';
+        if (!gamesCache.length) {
+            refreshReviewGames(targetGameId);
+        } else {
+            populateGameSelects(targetGameId);
+        }
+    });
+
+    if (filterReviewsForm) {
+        filterReviewsForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            renderReviews(reviewsCache);
+        });
+    }
+
+    if (resetReviewsFilter && filterReviewsGame) {
+        resetReviewsFilter.addEventListener('click', () => {
+            filterReviewsGame.value = '';
+            renderReviews(reviewsCache);
+        });
+    }
+
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            hideFeedbackBanner(reviewModalFeedback);
+
+            const id = document.getElementById('review-id').value.trim();
+            const jogoValue = document.getElementById('review-game').value.trim();
+            const notaRaw = document.getElementById('review-score').value.trim();
+            const status = document.getElementById('review-status').value.trim();
+            const comentario = document.getElementById('review-comment').value.trim();
+            const submitButton = reviewForm.querySelector('button[type="submit"]');
+
+            if (!jogoValue) {
+                showFeedbackBanner(reviewModalFeedback, 'Selecione um jogo válido antes de publicar a avaliação.', 'error');
+                return;
+            }
+
+            const notaNumber = Number(notaRaw);
+            if (Number.isNaN(notaNumber) || notaNumber < 0 || notaNumber > 10) {
+                showFeedbackBanner(reviewModalFeedback, 'Informe uma nota válida entre 0 e 10.', 'error');
+                return;
+            }
+
+            const jogoIdNumber = Number(jogoValue);
+            const usuarioIdNumber = Number(session.id);
+
+            const payload = {
+                nota: notaNumber,
+                status,
+                comentario,
+                jogoId: jogoIdNumber,
+                usuarioId: usuarioIdNumber,
+                jogo: { id: jogoIdNumber },
+                usuario: { id: usuarioIdNumber }
+            };
+
+            setSubmitButtonState(submitButton, true, 'Publicando...', 'Publicar Avaliação');
+
+            try {
+                if (id) {
+                    await apiRequest(`/avaliacoes/${encodeURIComponent(id)}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                    showFeedbackBanner(reviewsFeedback, 'Avaliação atualizada com sucesso.', 'success');
+                } else {
+                    await apiRequest('/avaliacoes', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    showFeedbackBanner(reviewsFeedback, 'Avaliação publicada com sucesso.', 'success');
+                }
+
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                reviewForm.reset();
+                await loadReviewsAndGames();
+            } catch (error) {
+                showFeedbackBanner(reviewModalFeedback, error.message || 'Não foi possível salvar a avaliação.', 'error');
+            } finally {
+                setSubmitButtonState(submitButton, false, 'Publicando...', 'Publicar Avaliação');
+            }
+        });
+    }
+
+    if (confirmDeleteReviewBtn) {
+        confirmDeleteReviewBtn.addEventListener('click', async () => {
+            const id = document.getElementById('delete-review-id').value.trim();
+            if (!id) {
+                return;
+            }
+
+            setSubmitButtonState(confirmDeleteReviewBtn, true, 'Excluindo...', 'Confirmar Exclusão');
+
+            try {
+                await apiRequest(`/avaliacoes/${encodeURIComponent(id)}`, {
+                    method: 'DELETE'
+                });
+
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                showFeedbackBanner(reviewsFeedback, 'Avaliação removida com sucesso.', 'success');
+                await loadReviewsAndGames();
+            } catch (error) {
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                showFeedbackBanner(reviewsFeedback, error.message || 'Não foi possível excluir a avaliação.', 'error');
+            } finally {
+                setSubmitButtonState(confirmDeleteReviewBtn, false, 'Excluindo...', 'Confirmar Exclusão');
+            }
+        });
+    }
+
+    loadReviewsAndGames();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     syncHeaderSession();
     loadHomePageData();
     initStudiosPage();
     initGamesPage();
+    initReviewsPage();
 
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login-form');
