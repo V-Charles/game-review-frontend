@@ -1965,6 +1965,326 @@ function initListsPage() {
     loadListsAndGames();
 }
 
+function initProfilePage() {
+    const profileForm = document.getElementById('profile-form');
+    const accountForm = document.getElementById('account-form');
+    if (!profileForm && !accountForm) {
+        return;
+    }
+
+    const session = requireAuth();
+    if (!session) {
+        return;
+    }
+
+    const profileFeedback = document.getElementById('profile-feedback');
+    const accountFeedback = document.getElementById('account-feedback');
+    const deleteAccountFeedback = document.getElementById('delete-account-feedback');
+    const confirmDeleteAccountBtn = document.getElementById('confirm-delete-account');
+
+    const avatarInitialsEl = document.getElementById('profile-avatar-initials');
+    const badgeIdEl = document.getElementById('profile-badge-id');
+    const displayUsernameEl = document.getElementById('profile-display-username');
+    const displayBioEl = document.getElementById('profile-display-bio');
+    const displayBirthdateEl = document.getElementById('profile-display-birthdate');
+    const deleteAccountUsernameEl = document.getElementById('delete-account-username');
+    const statReviewsEl = document.getElementById('profile-stat-reviews');
+    const statListsEl = document.getElementById('profile-stat-lists');
+
+    const bioInput = document.getElementById('profile-bio');
+    const birthdateInput = document.getElementById('profile-birthdate');
+    const usernameInput = document.getElementById('account-username');
+    const emailInput = document.getElementById('account-email');
+    const passwordInput = document.getElementById('account-password');
+
+    let cachedUsuario = null;
+    let currentPerfilId = null;
+
+    if (birthdateInput) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        birthdateInput.max = yesterday.toISOString().split('T')[0];
+    }
+
+    function computeInitials(userName) {
+        const clean = String(userName || 'GR').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        return clean.slice(0, 2) || 'GR';
+    }
+
+    function updateIdentityDisplay(userName, userId) {
+        const formattedId = `#${String(userId).padStart(2, '0')}`;
+        if (avatarInitialsEl) {
+            avatarInitialsEl.textContent = computeInitials(userName);
+        }
+        if (badgeIdEl) {
+            badgeIdEl.textContent = `CONTA VERIFICADA • ID ${formattedId}`;
+        }
+        if (displayUsernameEl) {
+            displayUsernameEl.textContent = `@${userName}`;
+        }
+        if (deleteAccountUsernameEl) {
+            deleteAccountUsernameEl.textContent = `@${userName}`;
+        }
+    }
+
+    function updatePublicProfileDisplay(bio, dataNasc) {
+        if (displayBioEl) {
+            displayBioEl.textContent = bio && bio.trim()
+                ? bio.trim()
+                : 'Nenhuma biografia informada.';
+        }
+        if (displayBirthdateEl) {
+            const isoDate = normalizeIsoDate(dataNasc);
+            displayBirthdateEl.textContent = isoDate
+                ? `NASCIMENTO: ${formatDateBr(isoDate)}`
+                : 'NASCIMENTO: NÃO INFORMADA';
+        }
+    }
+
+    function belongsToCurrentUser(item) {
+        if (!item) {
+            return false;
+        }
+        const directUser = item.usuario;
+        const ownerId = directUser && directUser.id
+            ? String(directUser.id)
+            : (item.usuarioId ? String(item.usuarioId) : '');
+        if (ownerId) {
+            return ownerId === String(session.id);
+        }
+        const ownerName = (directUser && (directUser.userName || directUser.username))
+            || item.usuarioUserName
+            || '';
+        return ownerName.toLowerCase() === String(session.userName || '').toLowerCase();
+    }
+
+    updateIdentityDisplay(session.userName, session.id);
+    if (usernameInput) {
+        usernameInput.value = session.userName || '';
+    }
+    if (emailInput) {
+        emailInput.value = session.email || '';
+    }
+
+    async function loadProfileData() {
+        const [userRes, perfilRes, reviewsRes, listsRes] = await Promise.allSettled([
+            apiRequest(`/usuarios/${encodeURIComponent(session.id)}`, {
+                method: 'GET',
+                headers: { 'X-API-Version': '1' }
+            }),
+            apiRequest(`/perfis/search?usuarioId=${encodeURIComponent(session.id)}`, {
+                method: 'GET'
+            }),
+            apiRequest('/avaliacoes', { method: 'GET' }),
+            apiRequest('/listas', { method: 'GET' })
+        ]);
+
+        const unauthorized = [userRes, perfilRes, reviewsRes, listsRes].find(
+            (res) => res.status === 'rejected' && (res.reason.status === 401 || res.reason.status === 403)
+        );
+        if (unauthorized) {
+            clearSession();
+            window.location.href = 'login.html';
+            return;
+        }
+
+        if (userRes.status === 'fulfilled' && userRes.value) {
+            cachedUsuario = userRes.value;
+            const resolvedUserName = cachedUsuario.userName || session.userName;
+            const resolvedEmail = cachedUsuario.email || session.email;
+            setSession({ ...cachedUsuario, userName: resolvedUserName, email: resolvedEmail }, session.apiKey);
+            syncHeaderSession();
+            updateIdentityDisplay(resolvedUserName, session.id);
+            if (usernameInput) {
+                usernameInput.value = resolvedUserName;
+            }
+            if (emailInput) {
+                emailInput.value = resolvedEmail;
+            }
+        } else if (userRes.status === 'rejected') {
+            showFeedbackBanner(accountFeedback, userRes.reason.message || 'Não foi possível carregar os dados da conta.', 'error');
+        }
+
+        const perfilData = perfilRes.status === 'fulfilled' && perfilRes.value
+            ? perfilRes.value
+            : (cachedUsuario && cachedUsuario.perfil ? cachedUsuario.perfil : null);
+
+        if (perfilData && perfilData.id) {
+            currentPerfilId = perfilData.id;
+            const bioVal = perfilData.bio || '';
+            const birthVal = normalizeIsoDate(perfilData.dataNasc);
+            if (bioInput) {
+                bioInput.value = bioVal;
+            }
+            if (birthdateInput) {
+                birthdateInput.value = birthVal;
+            }
+            updatePublicProfileDisplay(bioVal, birthVal);
+        } else {
+            currentPerfilId = null;
+            updatePublicProfileDisplay('', '');
+            if (perfilRes.status === 'rejected' && perfilRes.reason.status !== 404) {
+                showFeedbackBanner(profileFeedback, perfilRes.reason.message || 'Não foi possível carregar o perfil público.', 'error');
+            }
+        }
+
+        if (reviewsRes.status === 'fulfilled' && statReviewsEl) {
+            const allReviews = extractListFromResponse(reviewsRes.value);
+            const myReviewsCount = allReviews.filter(belongsToCurrentUser).length;
+            statReviewsEl.textContent = String(myReviewsCount).padStart(2, '0');
+        }
+
+        if (listsRes.status === 'fulfilled' && statListsEl) {
+            const allLists = extractListFromResponse(listsRes.value);
+            const myListsCount = allLists.filter(belongsToCurrentUser).length;
+            statListsEl.textContent = String(myListsCount).padStart(2, '0');
+        }
+    }
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            hideFeedbackBanner(profileFeedback);
+
+            const bio = bioInput ? (bioInput.value.trim() || null) : null;
+            const dataNasc = birthdateInput ? (birthdateInput.value.trim() || null) : null;
+            const submitButton = profileForm.querySelector('button[type="submit"]');
+
+            if (dataNasc) {
+                const todayIso = new Date().toISOString().split('T')[0];
+                if (dataNasc >= todayIso) {
+                    showFeedbackBanner(profileFeedback, 'A data de nascimento deve estar no passado.', 'error');
+                    return;
+                }
+            }
+
+            const payload = {
+                bio,
+                dataNasc,
+                usuario: { id: Number(session.id) }
+            };
+
+            setSubmitButtonState(submitButton, true, 'Salvando...', 'Salvar Perfil Público');
+
+            try {
+                let savedPerfil;
+                if (currentPerfilId) {
+                    savedPerfil = await apiRequest(`/perfis/${encodeURIComponent(currentPerfilId)}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    savedPerfil = await apiRequest('/perfis', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                if (savedPerfil && savedPerfil.id) {
+                    currentPerfilId = savedPerfil.id;
+                }
+
+                updatePublicProfileDisplay(bio || '', dataNasc || '');
+                showFeedbackBanner(profileFeedback, 'Perfil público salvo com sucesso.', 'success');
+            } catch (error) {
+                showFeedbackBanner(profileFeedback, error.message || 'Não foi possível salvar o perfil público.', 'error');
+            } finally {
+                setSubmitButtonState(submitButton, false, 'Salvando...', 'Salvar Perfil Público');
+            }
+        });
+    }
+
+    if (accountForm) {
+        accountForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            hideFeedbackBanner(accountFeedback);
+
+            const userName = usernameInput ? usernameInput.value.trim() : '';
+            const email = emailInput ? emailInput.value.trim() : '';
+            const novaSenha = passwordInput ? passwordInput.value : '';
+            const submitButton = accountForm.querySelector('button[type="submit"]');
+
+            if (userName.length < 3 || userName.length > 50) {
+                showFeedbackBanner(accountFeedback, 'O nome de usuário deve ter entre 3 e 50 caracteres.', 'error');
+                return;
+            }
+
+            if (novaSenha && novaSenha.length < 6) {
+                showFeedbackBanner(accountFeedback, 'A nova senha deve ter no mínimo 6 caracteres.', 'error');
+                return;
+            }
+
+            const senhaAtual = cachedUsuario && typeof cachedUsuario.senha === 'string'
+                ? cachedUsuario.senha
+                : '';
+            const senhaToSend = novaSenha || senhaAtual;
+
+            if (!senhaToSend) {
+                showFeedbackBanner(accountFeedback, 'Informe sua senha (atual ou nova, mínimo 6 caracteres) para confirmar a atualização dos dados.', 'error');
+                return;
+            }
+
+            setSubmitButtonState(submitButton, true, 'Atualizando...', 'Atualizar Dados da Conta');
+
+            try {
+                const updatedUser = await apiRequest(`/usuarios/${encodeURIComponent(session.id)}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        userName,
+                        email,
+                        senha: senhaToSend
+                    })
+                });
+
+                cachedUsuario = {
+                    ...(cachedUsuario || {}),
+                    ...(updatedUser || {}),
+                    id: Number(session.id),
+                    userName,
+                    email,
+                    senha: senhaToSend
+                };
+
+                setSession(cachedUsuario, session.apiKey);
+                syncHeaderSession();
+                updateIdentityDisplay(userName, session.id);
+
+                if (passwordInput) {
+                    passwordInput.value = '';
+                }
+
+                showFeedbackBanner(accountFeedback, 'Dados da conta atualizados com sucesso.', 'success');
+            } catch (error) {
+                showFeedbackBanner(accountFeedback, error.message || 'Não foi possível atualizar os dados da conta.', 'error');
+            } finally {
+                setSubmitButtonState(submitButton, false, 'Atualizando...', 'Atualizar Dados da Conta');
+            }
+        });
+    }
+
+    if (confirmDeleteAccountBtn) {
+        confirmDeleteAccountBtn.addEventListener('click', async () => {
+            hideFeedbackBanner(deleteAccountFeedback);
+            setSubmitButtonState(confirmDeleteAccountBtn, true, 'Excluindo...', 'Confirmar Exclusão');
+
+            try {
+                await apiRequest(`/usuarios/${encodeURIComponent(session.id)}`, {
+                    method: 'DELETE'
+                });
+
+                clearSession();
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                window.location.href = 'index.html';
+            } catch (error) {
+                showFeedbackBanner(deleteAccountFeedback, error.message || 'Não foi possível excluir a conta.', 'error');
+                setSubmitButtonState(confirmDeleteAccountBtn, false, 'Excluindo...', 'Confirmar Exclusão');
+            }
+        });
+    }
+
+    loadProfileData();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     syncHeaderSession();
     loadHomePageData();
@@ -1972,6 +2292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initGamesPage();
     initReviewsPage();
     initListsPage();
+    initProfilePage();
 
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login-form');

@@ -8,20 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const studioForm = document.getElementById('studio-form');
     const reviewForm = document.getElementById('review-form');
     const listForm = document.getElementById('list-form');
-    const profileForm = document.getElementById('profile-form');
-    const profileFeedback = document.getElementById('profile-feedback');
-    const accountForm = document.getElementById('account-form');
-    const accountFeedback = document.getElementById('account-feedback');
-    const confirmDeleteAccountBtn = document.getElementById('confirm-delete-account');
-
-    function showFeedbackMessage(element, message, type) {
-        if (!element) {
-            return;
-        }
-        element.textContent = message;
-        element.classList.remove('hidden', 'is-error', 'is-success');
-        element.classList.add(type === 'error' ? 'is-error' : 'is-success');
-    }
 
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
@@ -34,14 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.modal-backdrop').forEach((modal) => {
             modal.classList.add('hidden');
         });
-    }
-
-    function formatDisplayDate(isoDate) {
-        if (!isoDate || !isoDate.includes('-')) {
-            return 'NÃO INFORMADA';
-        }
-        const parts = isoDate.split('-');
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
 
     if (menuToggle && navMenu) {
@@ -253,55 +231,4 @@ document.addEventListener('DOMContentLoaded', () => {
             closeAllModals();
         }
     });
-
-    if (profileForm) {
-        profileForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const bioInput = document.getElementById('profile-bio');
-            const birthInput = document.getElementById('profile-birthdate');
-            const displayBio = document.getElementById('profile-display-bio');
-            const displayBirth = document.getElementById('profile-display-birthdate');
-
-            if (displayBio && bioInput) {
-                displayBio.textContent = bioInput.value.trim() || 'Nenhuma biografia informada.';
-            }
-
-            if (displayBirth && birthInput) {
-                displayBirth.textContent = `NASCIMENTO: ${formatDisplayDate(birthInput.value)}`;
-            }
-
-            showFeedbackMessage(profileFeedback, 'Perfil público validado com sucesso. Pronto para integração com a API.', 'success');
-        });
-    }
-
-    if (accountForm) {
-        accountForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const usernameInput = document.getElementById('account-username');
-            const displayUsername = document.getElementById('profile-display-username');
-            const newUsername = usernameInput ? usernameInput.value.trim() : '';
-
-            if (newUsername.length < 3) {
-                showFeedbackMessage(accountFeedback, 'O nome de usuário deve ter pelo menos 3 caracteres.', 'error');
-                return;
-            }
-
-            if (displayUsername) {
-                displayUsername.textContent = `@${newUsername}`;
-            }
-
-            document.querySelectorAll('.user-badge-name').forEach((badge) => {
-                badge.textContent = `@${newUsername}`;
-            });
-
-            showFeedbackMessage(accountFeedback, 'Dados da conta validados com sucesso. Pronto para integração com a API.', 'success');
-        });
-    }
-
-    if (confirmDeleteAccountBtn) {
-        confirmDeleteAccountBtn.addEventListener('click', () => {
-            closeAllModals();
-            window.location.href = 'index.html';
-        });
-    }
 });

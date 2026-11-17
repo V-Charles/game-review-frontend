@@ -28,19 +28,19 @@
                 <a href="perfil.html" class="nav-link active">Meu Perfil</a>
                 <div class="nav-auth-mobile">
                     <span class="user-badge">
-                        <span class="user-badge-name">@zReaperz</span>
-                        <span class="user-badge-id">#01</span>
+                        <span class="user-badge-name">@jogador</span>
+                        <span class="user-badge-id">#00</span>
                     </span>
-                    <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+                    <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
                 </div>
             </nav>
 
             <div class="header-actions">
                 <div class="user-badge">
-                    <span class="user-badge-name">@zReaperz</span>
-                    <span class="user-badge-id">#01</span>
+                    <span class="user-badge-name">@jogador</span>
+                    <span class="user-badge-id">#00</span>
                 </div>
-                <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+                <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
             </div>
         </div>
     </header>
@@ -58,24 +58,24 @@
 
                 <div class="profile-banner">
                     <div class="profile-identity">
-                        <div class="profile-avatar" aria-hidden="true">ZR</div>
+                        <div id="profile-avatar-initials" class="profile-avatar" aria-hidden="true">GR</div>
                         <div class="profile-summary">
                             <div class="flex-between">
-                                <span class="badge badge-cyan">CONTA VERIFICADA • ID #01</span>
+                                <span id="profile-badge-id" class="badge badge-cyan">CONTA VERIFICADA • ID #00</span>
                             </div>
-                            <h2 id="profile-display-username">@zReaperz</h2>
-                            <p id="profile-display-bio">Entusiasta de FPS tático, RPGs de mundo aberto e curadoria de catálogos independentes.</p>
-                            <span id="profile-display-birthdate" class="mono-label">NASCIMENTO: 15/08/2002</span>
+                            <h2 id="profile-display-username">@jogador</h2>
+                            <p id="profile-display-bio">Carregando informações do perfil...</p>
+                            <span id="profile-display-birthdate" class="mono-label">NASCIMENTO: --</span>
                         </div>
                     </div>
 
                     <div class="profile-metrics">
                         <div class="stat-card">
-                            <span class="stat-value">02</span>
+                            <span id="profile-stat-reviews" class="stat-value">--</span>
                             <span class="stat-label">Avaliações publicadas</span>
                         </div>
                         <div class="stat-card">
-                            <span class="stat-value">02</span>
+                            <span id="profile-stat-lists" class="stat-value">--</span>
                             <span class="stat-label">Listas criadas</span>
                         </div>
                     </div>
@@ -94,13 +94,13 @@
                         <form id="profile-form" class="auth-form">
                             <div class="form-group">
                                 <label for="profile-bio" class="form-label">Biografia</label>
-                                <textarea id="profile-bio" name="biografia" class="form-input form-textarea" rows="4" maxlength="300" placeholder="Conte um pouco sobre seus gêneros e plataformas favoritos...">Entusiasta de FPS tático, RPGs de mundo aberto e curadoria de catálogos independentes.</textarea>
-                                <span class="form-hint">Máximo de 300 caracteres.</span>
+                                <textarea id="profile-bio" name="bio" class="form-input form-textarea" rows="4" maxlength="255" placeholder="Conte um pouco sobre seus gêneros e plataformas favoritos..."></textarea>
+                                <span class="form-hint">Máximo de 255 caracteres.</span>
                             </div>
 
                             <div class="form-group">
                                 <label for="profile-birthdate" class="form-label">Data de nascimento</label>
-                                <input type="date" id="profile-birthdate" name="dataNascimento" class="form-input" value="2002-08-15">
+                                <input type="date" id="profile-birthdate" name="dataNasc" class="form-input">
                             </div>
 
                             <button type="submit" class="btn btn-primary btn-full">Salvar Perfil Público</button>
@@ -119,12 +119,12 @@
                         <form id="account-form" class="auth-form">
                             <div class="form-group">
                                 <label for="account-username" class="form-label">Nome de usuário *</label>
-                                <input type="text" id="account-username" name="userName" class="form-input" value="zReaperz" minlength="3" maxlength="50" required>
+                                <input type="text" id="account-username" name="userName" class="form-input" minlength="3" maxlength="50" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="account-email" class="form-label">E-mail *</label>
-                                <input type="email" id="account-email" name="email" class="form-input" value="zreaperz@gamereview.com" required>
+                                <input type="email" id="account-email" name="email" class="form-input" required>
                             </div>
 
                             <div class="form-group">
@@ -173,7 +173,9 @@
                 <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
             </div>
 
-            <p>Tem certeza de que deseja excluir permanentemente a sua conta <strong>@zReaperz</strong>? Todos os seus registros serão removidos.</p>
+            <div id="delete-account-feedback" class="form-feedback hidden" role="alert"></div>
+
+            <p>Tem certeza de que deseja excluir permanentemente a sua conta <strong id="delete-account-username">@jogador</strong>? Todos os seus registros serão removidos.</p>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
@@ -182,6 +184,7 @@
         </div>
     </div>
 
+    <script src="js/api.js"></script>
     <script src="js/ui.js"></script>
 </body>
 </html>
