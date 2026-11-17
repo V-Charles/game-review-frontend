@@ -9,10 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetGamesSearch = document.getElementById('reset-games-search');
     const gamesEmptyState = document.getElementById('games-empty-state');
     const gameForm = document.getElementById('game-form');
-    const searchStudiosForm = document.getElementById('search-studios-form');
-    const searchStudiosInput = document.getElementById('search-studios-input');
-    const resetStudiosSearch = document.getElementById('reset-studios-search');
-    const studiosEmptyState = document.getElementById('studios-empty-state');
     const studioForm = document.getElementById('studio-form');
     const filterReviewsForm = document.getElementById('filter-reviews-form');
     const filterReviewsGame = document.getElementById('filter-reviews-game');
@@ -73,19 +69,121 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('click', (event) => {
-        const trigger = event.target.closest('[data-visitor-restricted]');
+        const visitorTrigger = event.target.closest('[data-visitor-restricted]');
+        if (visitorTrigger) {
+            if (typeof isAuthenticated === 'function' && isAuthenticated() && visitorTrigger.dataset.authTarget) {
+                window.location.href = visitorTrigger.dataset.authTarget;
+                return;
+            }
+            const actionLabel = visitorTrigger.dataset.visitorRestricted || 'realizar esta ação';
+            if (visitorToast && visitorToastText) {
+                visitorToastText.textContent = `Para ${actionLabel}, entre na sua conta ou faça seu cadastro gratuito.`;
+                visitorToast.classList.remove('hidden');
+            }
+            return;
+        }
+
+        const trigger = event.target.closest('[data-open-modal]');
         if (!trigger) {
             return;
         }
-        if (typeof isAuthenticated === 'function' && isAuthenticated() && trigger.dataset.authTarget) {
-            window.location.href = trigger.dataset.authTarget;
-            return;
+
+        const modalId = trigger.dataset.openModal;
+        const mode = trigger.dataset.modalMode;
+
+        if (modalId === 'game-modal') {
+            const modalTitle = document.getElementById('game-modal-title');
+            if (mode === 'edit') {
+                modalTitle.textContent = 'Editar Jogo';
+                document.getElementById('game-id').value = trigger.dataset.gameId || '';
+                document.getElementById('game-title').value = trigger.dataset.gameName || '';
+                document.getElementById('game-studio').value = trigger.dataset.gameStudio || '';
+                document.getElementById('game-release').value = trigger.dataset.gameRelease || '';
+                document.getElementById('game-igdb').value = trigger.dataset.gameIgdb || '';
+                document.getElementById('game-cover').value = trigger.dataset.gameCover || '';
+            } else {
+                modalTitle.textContent = 'Cadastrar Novo Jogo';
+                if (gameForm) {
+                    gameForm.reset();
+                }
+                document.getElementById('game-id').value = '';
+            }
         }
-        const actionLabel = trigger.dataset.visitorRestricted || 'realizar esta ação';
-        if (visitorToast && visitorToastText) {
-            visitorToastText.textContent = `Para ${actionLabel}, entre na sua conta ou faça seu cadastro gratuito.`;
-            visitorToast.classList.remove('hidden');
+
+        if (modalId === 'studio-modal') {
+            const modalTitle = document.getElementById('studio-modal-title');
+            if (mode === 'edit') {
+                modalTitle.textContent = 'Editar Estúdio';
+                document.getElementById('studio-id').value = trigger.dataset.studioId || '';
+                document.getElementById('studio-name').value = trigger.dataset.studioTitle || '';
+                document.getElementById('studio-country').value = trigger.dataset.studioCountry || '';
+            } else {
+                modalTitle.textContent = 'Cadastrar Novo Estúdio';
+                if (studioForm) {
+                    studioForm.reset();
+                }
+                document.getElementById('studio-id').value = '';
+            }
         }
+
+        if (modalId === 'delete-studio-modal') {
+            const deleteIdInput = document.getElementById('delete-studio-id');
+            const deleteNameText = document.getElementById('delete-studio-name');
+            if (deleteIdInput) {
+                deleteIdInput.value = trigger.dataset.studioId || '';
+            }
+            if (deleteNameText) {
+                deleteNameText.textContent = trigger.dataset.studioTitle || '';
+            }
+        }
+
+        if (modalId === 'review-modal') {
+            const modalTitle = document.getElementById('review-modal-title');
+            if (mode === 'edit') {
+                modalTitle.textContent = 'Editar Avaliação';
+                document.getElementById('review-id').value = trigger.dataset.reviewId || '';
+                document.getElementById('review-game').value = trigger.dataset.reviewGame || '';
+                document.getElementById('review-score').value = trigger.dataset.reviewScore || '';
+                document.getElementById('review-status').value = trigger.dataset.reviewStatus || 'JOGANDO';
+                document.getElementById('review-comment').value = trigger.dataset.reviewComment || '';
+            } else {
+                modalTitle.textContent = 'Nova Avaliação';
+                if (reviewForm) {
+                    reviewForm.reset();
+                }
+                document.getElementById('review-id').value = '';
+            }
+        }
+
+        if (modalId === 'list-modal') {
+            const modalTitle = document.getElementById('list-modal-title');
+            const gameCheckboxes = document.querySelectorAll('#list-games-checklist input[name="listGames"]');
+
+            if (mode === 'edit') {
+                modalTitle.textContent = 'Editar Lista';
+                document.getElementById('list-id').value = trigger.dataset.listId || '';
+                document.getElementById('list-name').value = trigger.dataset.listName || '';
+                document.getElementById('list-description').value = trigger.dataset.listDesc || '';
+                document.getElementById('list-public').checked = trigger.dataset.listPublic === 'true';
+
+                const selectedIds = new Set((trigger.dataset.listGames || '').split(',').filter(Boolean));
+                gameCheckboxes.forEach((checkbox) => {
+                    checkbox.checked = selectedIds.has(checkbox.value);
+                });
+            } else {
+                modalTitle.textContent = 'Nova Lista de Jogos';
+                if (listForm) {
+                    listForm.reset();
+                }
+                document.getElementById('list-id').value = '';
+                document.getElementById('list-public').checked = true;
+                gameCheckboxes.forEach((checkbox) => {
+                    checkbox.checked = false;
+                });
+            }
+        }
+
+        openModal(modalId);
     });
 
     if (closeVisitorToast && visitorToast) {
@@ -105,96 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
             input.type = isHidden ? 'text' : 'password';
             toggleBtn.textContent = isHidden ? 'Ocultar' : 'Mostrar';
             toggleBtn.setAttribute('aria-pressed', String(isHidden));
-        });
-    });
-
-    document.querySelectorAll('[data-open-modal]').forEach((trigger) => {
-        trigger.addEventListener('click', () => {
-            const modalId = trigger.dataset.openModal;
-            const mode = trigger.dataset.modalMode;
-
-            if (modalId === 'game-modal') {
-                const modalTitle = document.getElementById('game-modal-title');
-                if (mode === 'edit') {
-                    modalTitle.textContent = 'Editar Jogo';
-                    document.getElementById('game-id').value = trigger.dataset.gameId || '';
-                    document.getElementById('game-title').value = trigger.dataset.gameName || '';
-                    document.getElementById('game-studio').value = trigger.dataset.gameStudio || '';
-                    document.getElementById('game-release').value = trigger.dataset.gameRelease || '';
-                    document.getElementById('game-igdb').value = trigger.dataset.gameIgdb || '';
-                    document.getElementById('game-cover').value = trigger.dataset.gameCover || '';
-                } else {
-                    modalTitle.textContent = 'Cadastrar Novo Jogo';
-                    if (gameForm) {
-                        gameForm.reset();
-                    }
-                    document.getElementById('game-id').value = '';
-                }
-            }
-
-            if (modalId === 'studio-modal') {
-                const modalTitle = document.getElementById('studio-modal-title');
-                if (mode === 'edit') {
-                    modalTitle.textContent = 'Editar Estúdio';
-                    document.getElementById('studio-id').value = trigger.dataset.studioId || '';
-                    document.getElementById('studio-name').value = trigger.dataset.studioTitle || '';
-                    document.getElementById('studio-country').value = trigger.dataset.studioCountry || '';
-                } else {
-                    modalTitle.textContent = 'Cadastrar Novo Estúdio';
-                    if (studioForm) {
-                        studioForm.reset();
-                    }
-                    document.getElementById('studio-id').value = '';
-                }
-            }
-
-            if (modalId === 'review-modal') {
-                const modalTitle = document.getElementById('review-modal-title');
-                if (mode === 'edit') {
-                    modalTitle.textContent = 'Editar Avaliação';
-                    document.getElementById('review-id').value = trigger.dataset.reviewId || '';
-                    document.getElementById('review-game').value = trigger.dataset.reviewGame || '';
-                    document.getElementById('review-score').value = trigger.dataset.reviewScore || '';
-                    document.getElementById('review-status').value = trigger.dataset.reviewStatus || 'JOGANDO';
-                    document.getElementById('review-comment').value = trigger.dataset.reviewComment || '';
-                } else {
-                    modalTitle.textContent = 'Nova Avaliação';
-                    if (reviewForm) {
-                        reviewForm.reset();
-                    }
-                    document.getElementById('review-id').value = '';
-                }
-            }
-
-            if (modalId === 'list-modal') {
-                const modalTitle = document.getElementById('list-modal-title');
-                const gameCheckboxes = document.querySelectorAll('#list-games-checklist input[name="listGames"]');
-
-                if (mode === 'edit') {
-                    modalTitle.textContent = 'Editar Lista';
-                    document.getElementById('list-id').value = trigger.dataset.listId || '';
-                    document.getElementById('list-name').value = trigger.dataset.listName || '';
-                    document.getElementById('list-description').value = trigger.dataset.listDesc || '';
-                    document.getElementById('list-public').checked = trigger.dataset.listPublic === 'true';
-
-                    const selectedIds = new Set((trigger.dataset.listGames || '').split(',').filter(Boolean));
-                    gameCheckboxes.forEach((checkbox) => {
-                        checkbox.checked = selectedIds.has(checkbox.value);
-                    });
-                } else {
-                    modalTitle.textContent = 'Nova Lista de Jogos';
-                    if (listForm) {
-                        listForm.reset();
-                    }
-                    document.getElementById('list-id').value = '';
-                    document.getElementById('list-public').checked = true;
-                    gameCheckboxes.forEach((checkbox) => {
-                        checkbox.checked = false;
-                    });
-                }
-            }
-
-            openModal(modalId);
         });
     });
 
@@ -252,47 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (gameForm) {
         gameForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            closeAllModals();
-        });
-    }
-
-    if (searchStudiosForm && searchStudiosInput) {
-        searchStudiosForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const query = searchStudiosInput.value.trim().toLowerCase();
-            const cards = document.querySelectorAll('#studios-grid .studio-card');
-            let visibleCount = 0;
-
-            cards.forEach((card) => {
-                const name = card.dataset.studioName || '';
-                const match = name.includes(query);
-                card.classList.toggle('hidden', !match);
-                if (match) {
-                    visibleCount += 1;
-                }
-            });
-
-            if (studiosEmptyState) {
-                studiosEmptyState.classList.toggle('hidden', visibleCount > 0);
-            }
-        });
-    }
-
-    if (resetStudiosSearch && searchStudiosInput) {
-        resetStudiosSearch.addEventListener('click', () => {
-            searchStudiosInput.value = '';
-            document.querySelectorAll('#studios-grid .studio-card').forEach((card) => {
-                card.classList.remove('hidden');
-            });
-            if (studiosEmptyState) {
-                studiosEmptyState.classList.add('hidden');
-            }
-        });
-    }
-
-    if (studioForm) {
-        studioForm.addEventListener('submit', (event) => {
             event.preventDefault();
             closeAllModals();
         });

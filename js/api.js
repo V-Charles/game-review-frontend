@@ -189,7 +189,7 @@ async function apiRequest(endpoint, options = {}) {
     return data;
 }
 
-function showAuthStatus(element, message, type) {
+function showFeedbackBanner(element, message, type) {
     if (!element) {
         return;
     }
@@ -568,9 +568,200 @@ async function authenticateUser(credentials) {
     return { ...user, apiKey };
 }
 
+function initStudiosPage() {
+    const studiosGrid = document.getElementById('studios-grid');
+    if (!studiosGrid) {
+        return;
+    }
+
+    const session = requireAuth();
+    if (!session) {
+        return;
+    }
+
+    const studiosFeedback = document.getElementById('studios-feedback');
+    const searchStudiosForm = document.getElementById('search-studios-form');
+    const searchStudiosInput = document.getElementById('search-studios-input');
+    const resetStudiosSearch = document.getElementById('reset-studios-search');
+    const studiosEmptyState = document.getElementById('studios-empty-state');
+    const studioForm = document.getElementById('studio-form');
+    const confirmDeleteStudioBtn = document.getElementById('confirm-delete-studio');
+
+    let studiosCache = [];
+
+    function renderStudios(studios) {
+        const query = searchStudiosInput ? searchStudiosInput.value.trim().toLowerCase() : '';
+        const filtered = query
+            ? studios.filter((studio) => {
+                const name = String(studio.nomeEstudio || studio.nome || '').toLowerCase();
+                const country = String(studio.paisFundacao || studio.pais || '').toLowerCase();
+                return name.includes(query) || country.includes(query);
+            })
+            : studios;
+
+        if (!studios.length) {
+            studiosGrid.innerHTML = '';
+            if (studiosEmptyState) {
+                studiosEmptyState.querySelector('p').textContent = 'Nenhum estúdio cadastrado até o momento. Clique em "+ Novo Estúdio" para adicionar.';
+                studiosEmptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (!filtered.length) {
+            studiosGrid.innerHTML = '';
+            if (studiosEmptyState) {
+                studiosEmptyState.querySelector('p').textContent = 'Nenhum estúdio encontrado para o filtro aplicado.';
+                studiosEmptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (studiosEmptyState) {
+            studiosEmptyState.classList.add('hidden');
+        }
+
+        studiosGrid.innerHTML = filtered.map((studio) => {
+            const id = studio.id;
+            const idFormatted = String(id || 0).padStart(2, '0');
+            const name = escapeHtml(studio.nomeEstudio || studio.nome || 'Estúdio');
+            const country = escapeHtml(studio.paisFundacao || studio.pais || 'País não informado');
+
+            return `
+                <article class="card studio-card">
+                    <div class="card-body">
+                        <div class="flex-between">
+                            <span class="badge badge-cyan">${country}</span>
+                            <span class="mono-label">ID #${escapeHtml(idFormatted)}</span>
+                        </div>
+                        <h2 class="card-title">${name}</h2>
+                        <p class="card-description">Desenvolvedora vinculada ao catálogo oficial de jogos da plataforma.</p>
+                    </div>
+                    <div class="card-footer flex-between">
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-open-modal="studio-modal"
+                            data-modal-mode="edit"
+                            data-studio-id="${escapeHtml(id)}"
+                            data-studio-title="${name}"
+                            data-studio-country="${country}">
+                            Editar
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm"
+                            data-open-modal="delete-studio-modal"
+                            data-studio-id="${escapeHtml(id)}"
+                            data-studio-title="${name}">
+                            Excluir
+                        </button>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    async function loadStudios() {
+        try {
+            const payload = await apiRequest('/estudios', { method: 'GET' });
+            studiosCache = extractListFromResponse(payload);
+            renderStudios(studiosCache);
+        } catch (error) {
+            if (error.status === 401 || error.status === 403) {
+                clearSession();
+                window.location.href = 'login.html';
+                return;
+            }
+            studiosGrid.innerHTML = '';
+            showFeedbackBanner(studiosFeedback, error.message || 'Não foi possível carregar os estúdios.', 'error');
+        }
+    }
+
+    if (searchStudiosForm) {
+        searchStudiosForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            renderStudios(studiosCache);
+        });
+    }
+
+    if (resetStudiosSearch && searchStudiosInput) {
+        resetStudiosSearch.addEventListener('click', () => {
+            searchStudiosInput.value = '';
+            renderStudios(studiosCache);
+        });
+    }
+
+    if (studioForm) {
+        studioForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const id = document.getElementById('studio-id').value.trim();
+            const nomeEstudio = document.getElementById('studio-name').value.trim();
+            const paisFundacao = document.getElementById('studio-country').value.trim();
+            const submitButton = studioForm.querySelector('button[type="submit"]');
+
+            setSubmitButtonState(submitButton, true, 'Salvando...', 'Salvar Estúdio');
+
+            try {
+                if (id) {
+                    await apiRequest(`/estudios/${encodeURIComponent(id)}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ nomeEstudio, paisFundacao })
+                    });
+                    showFeedbackBanner(studiosFeedback, `Estúdio "${nomeEstudio}" atualizado com sucesso.`, 'success');
+                } else {
+                    await apiRequest('/estudios', {
+                        method: 'POST',
+                        body: JSON.stringify({ nomeEstudio, paisFundacao })
+                    });
+                    showFeedbackBanner(studiosFeedback, `Estúdio "${nomeEstudio}" cadastrado com sucesso.`, 'success');
+                }
+
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                studioForm.reset();
+                await loadStudios();
+            } catch (error) {
+                showFeedbackBanner(studiosFeedback, error.message || 'Não foi possível salvar o estúdio.', 'error');
+            } finally {
+                setSubmitButtonState(submitButton, false, 'Salvando...', 'Salvar Estúdio');
+            }
+        });
+    }
+
+    if (confirmDeleteStudioBtn) {
+        confirmDeleteStudioBtn.addEventListener('click', async () => {
+            const id = document.getElementById('delete-studio-id').value.trim();
+            if (!id) {
+                return;
+            }
+
+            setSubmitButtonState(confirmDeleteStudioBtn, true, 'Excluindo...', 'Confirmar Exclusão');
+
+            try {
+                await apiRequest(`/estudios/${encodeURIComponent(id)}`, {
+                    method: 'DELETE'
+                });
+
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                showFeedbackBanner(studiosFeedback, 'Estúdio removido com sucesso.', 'success');
+                await loadStudios();
+            } catch (error) {
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                showFeedbackBanner(studiosFeedback, error.message || 'Não foi possível excluir o estúdio.', 'error');
+            } finally {
+                setSubmitButtonState(confirmDeleteStudioBtn, false, 'Excluindo...', 'Confirmar Exclusão');
+            }
+        });
+    }
+
+    loadStudios();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     syncHeaderSession();
     loadHomePageData();
+    initStudiosPage();
 
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login-form');
@@ -587,7 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitButton = registerForm.querySelector('button[type="submit"]');
 
             if (senha !== confirmarSenha) {
-                showAuthStatus(authFeedback, 'As senhas informadas não coincidem. Verifique e tente novamente.', 'error');
+                showFeedbackBanner(authFeedback, 'As senhas informadas não coincidem. Verifique e tente novamente.', 'error');
                 return;
             }
 
@@ -604,14 +795,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
 
-                showAuthStatus(authFeedback, 'Conta criada com sucesso! Redirecionando para o login...', 'success');
+                showFeedbackBanner(authFeedback, 'Conta criada com sucesso! Redirecionando para o login...', 'success');
                 registerForm.reset();
 
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 1200);
             } catch (error) {
-                showAuthStatus(authFeedback, error.message || 'Erro ao cadastrar usuário.', 'error');
+                showFeedbackBanner(authFeedback, error.message || 'Erro ao cadastrar usuário.', 'error');
                 setSubmitButtonState(submitButton, false, 'Cadastrando...', 'Concluir Cadastro');
             }
         });
@@ -630,7 +821,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const user = await authenticateUser({ email, senha });
 
-                showAuthStatus(authFeedback, `Bem-vindo, @${user.userName || 'jogador'}! Redirecionando...`, 'success');
+                showFeedbackBanner(authFeedback, `Bem-vindo, @${user.userName || 'jogador'}! Redirecionando...`, 'success');
 
                 setTimeout(() => {
                     window.location.href = 'jogos.html';
@@ -639,7 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const message = error.status === 401 || error.status === 403
                     ? 'E-mail ou senha inválidos. Verifique suas credenciais.'
                     : (error.message || 'Não foi possível realizar o login.');
-                showAuthStatus(authFeedback, message, 'error');
+                showFeedbackBanner(authFeedback, message, 'error');
                 setSubmitButtonState(submitButton, false, 'Entrando...', 'Acessar Plataforma');
             }
         });

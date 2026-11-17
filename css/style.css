@@ -292,12 +292,17 @@ p {
     transform: translateY(1px);
 }
 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .btn-primary {
     background-color: var(--color-primary);
     color: var(--color-text-inverse);
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     background-color: var(--color-primary-hover);
     box-shadow: var(--shadow-glow);
 }
@@ -308,7 +313,7 @@ p {
     color: var(--color-primary);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
     background-color: var(--color-primary-soft);
 }
 
@@ -318,7 +323,7 @@ p {
     color: var(--color-text-secondary);
 }
 
-.btn-ghost:hover {
+.btn-ghost:hover:not(:disabled) {
     border-color: var(--color-text-secondary);
     color: var(--color-text-primary);
 }
@@ -329,7 +334,7 @@ p {
     color: var(--color-danger);
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
     background-color: var(--color-danger-soft);
 }
 
@@ -846,6 +851,10 @@ p {
     border-radius: var(--radius-sm);
     font-size: 0.88rem;
     font-weight: 500;
+}
+
+.section-feedback {
+    margin-bottom: 1.5rem;
 }
 
 .form-feedback.is-error {
