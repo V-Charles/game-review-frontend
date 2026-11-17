@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameReview — Ecossistema de Análise e Catálogo de Jogos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="#inicio" class="nav-link active">Início</a>
+                <a href="#catalogo" class="nav-link">Jogos</a>
+                <a href="#estudios" class="nav-link">Estúdios</a>
+                <a href="#avaliacoes" class="nav-link">Avaliações</a>
+                <a href="#listas" class="nav-link">Listas</a>
+                <div class="nav-auth-mobile">
+                    <a href="login.html" class="btn btn-ghost btn-sm">Entrar</a>
+                    <a href="cadastro.html" class="btn btn-primary btn-sm">Criar Conta</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <a href="login.html" class="btn btn-ghost btn-sm">Entrar</a>
+                <a href="cadastro.html" class="btn btn-primary btn-sm">Criar Conta</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section id="inicio" class="hero">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <span class="badge badge-cyan">MODO VISITANTE • ACESSO PÚBLICO</span>
+                    <h1>Sua central definitiva para catalogar e avaliar jogos.</h1>
+                    <p>Explore títulos de grandes estúdios, acompanhe as notas da comunidade e descubra listas personalizadas. Crie sua conta gratuita para publicar análises e gerenciar suas próprias coleções.</p>
+                    <div class="hero-actions">
+                        <a href="cadastro.html" class="btn btn-primary">Criar Conta Gratuita</a>
+                        <a href="#catalogo" class="btn btn-secondary">Explorar Catálogo</a>
+                    </div>
+                </div>
+
+                <aside class="hero-panel" aria-label="Resumo da plataforma">
+                    <div class="hero-panel-header">
+                        <span class="status-dot"></span>
+                        <span class="mono-label">STATUS DO ECOSSISTEMA</span>
+                    </div>
+                    <div class="hero-panel-list">
+                        <div class="hero-panel-item">
+                            <span class="mono-label">01 // CATÁLOGO</span>
+                            <strong>Fichas técnicas, datas de lançamento e capas oficiais</strong>
+                        </div>
+                        <div class="hero-panel-item">
+                            <span class="mono-label">02 // PROGRESSO</span>
+                            <strong>Registre status como Jogando, Zerado ou Platinado</strong>
+                        </div>
+                        <div class="hero-panel-item">
+                            <span class="mono-label">03 // CURADORIA</span>
+                            <strong>Listas públicas e privadas organizadas por gênero</strong>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="stats-strip" aria-label="Indicadores da comunidade">
+            <div class="container grid-4">
+                <article class="stat-card">
+                    <span class="stat-value">1.240+</span>
+                    <span class="stat-label">Jogos Catalogados</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-value">185</span>
+                    <span class="stat-label">Estúdios Registrados</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-value">8.920</span>
+                    <span class="stat-label">Avaliações Publicadas</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-value">640</span>
+                    <span class="stat-label">Listas da Comunidade</span>
+                </article>
+            </div>
+        </section>
+
+        <section id="catalogo" class="section-block">
+            <div class="container">
+                <div class="home-section-header">
+                    <div>
+                        <span class="section-kicker">ACERVO EM DESTAQUE</span>
+                        <h2>Catálogo de Jogos</h2>
+                        <p>Visualize os títulos cadastrados. Para adicionar novos jogos ou publicar notas, acesse sua conta.</p>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" data-visitor-restricted="cadastrar novos jogos">+ Novo Jogo</button>
+                </div>
+
+                <div class="grid-4">
+                    <article class="card game-card">
+                        <div class="game-visual cover-variant-1">
+                            <span class="badge badge-cyan">IGDB #7360</span>
+                            <span class="game-genre">TACTICAL FPS</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">Ubisoft Montreal</span>
+                                <span class="score-chip">9.5</span>
+                            </div>
+                            <h3 class="card-title">Tom Clancy's Rainbow Six Siege</h3>
+                            <p class="card-meta">Lançamento: 01/12/2015</p>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-ghost btn-sm btn-full" data-visitor-restricted="avaliar este jogo">Avaliar Jogo</button>
+                        </div>
+                    </article>
+
+                    <article class="card game-card">
+                        <div class="game-visual cover-variant-2">
+                            <span class="badge badge-cyan">IGDB #1877</span>
+                            <span class="game-genre">SCI-FI RPG</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">CD Projekt Red</span>
+                                <span class="score-chip">9.2</span>
+                            </div>
+                            <h3 class="card-title">Cyberpunk 2077</h3>
+                            <p class="card-meta">Lançamento: 10/12/2020</p>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-ghost btn-sm btn-full" data-visitor-restricted="avaliar este jogo">Avaliar Jogo</button>
+                        </div>
+                    </article>
+
+                    <article class="card game-card">
+                        <div class="game-visual cover-variant-3">
+                            <span class="badge badge-cyan">IGDB #119133</span>
+                            <span class="game-genre">ACTION RPG</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">FromSoftware</span>
+                                <span class="score-chip">9.8</span>
+                            </div>
+                            <h3 class="card-title">Elden Ring</h3>
+                            <p class="card-meta">Lançamento: 25/02/2022</p>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-ghost btn-sm btn-full" data-visitor-restricted="avaliar este jogo">Avaliar Jogo</button>
+                        </div>
+                    </article>
+
+                    <article class="card game-card">
+                        <div class="game-visual cover-variant-4">
+                            <span class="badge badge-cyan">IGDB #25076</span>
+                            <span class="game-genre">ACTION ADVENTURE</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">Rockstar Games</span>
+                                <span class="score-chip">9.7</span>
+                            </div>
+                            <h3 class="card-title">Red Dead Redemption 2</h3>
+                            <p class="card-meta">Lançamento: 26/10/2018</p>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-ghost btn-sm btn-full" data-visitor-restricted="avaliar este jogo">Avaliar Jogo</button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="estudios" class="section-block section-alt">
+            <div class="container">
+                <div class="home-section-header">
+                    <div>
+                        <span class="section-kicker">DESENVOLVEDORAS</span>
+                        <h2>Estúdios Cadastrados</h2>
+                        <p>Conheça os estúdios responsáveis pelos principais títulos do catálogo.</p>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" data-visitor-restricted="cadastrar estúdios">+ Novo Estúdio</button>
+                </div>
+
+                <div class="grid-3">
+                    <article class="card">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-cyan">Canadá</span>
+                                <span class="mono-label">ID #01</span>
+                            </div>
+                            <h3 class="card-title">Ubisoft Montreal</h3>
+                            <p class="card-description">Estúdio responsável por franquias táticas e de ação em mundo aberto.</p>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-cyan">Polônia</span>
+                                <span class="mono-label">ID #02</span>
+                            </div>
+                            <h3 class="card-title">CD Projekt Red</h3>
+                            <p class="card-description">Desenvolvedora focada em RPGs narrativos de alta imersão e mundos futuristas.</p>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-cyan">Japão</span>
+                                <span class="mono-label">ID #03</span>
+                            </div>
+                            <h3 class="card-title">FromSoftware</h3>
+                            <p class="card-description">Referência mundial em RPGs de ação desafiadores e design de níveis interconectados.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="avaliacoes" class="section-block">
+            <div class="container">
+                <div class="home-section-header">
+                    <div>
+                        <span class="section-kicker">FEED DA COMUNIDADE</span>
+                        <h2>Avaliações Recentes</h2>
+                        <p>Acompanhe as impressões, notas e status de progresso compartilhados pelos jogadores.</p>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" data-visitor-restricted="publicar avaliações">+ Nova Avaliação</button>
+                </div>
+
+                <div class="grid-3">
+                    <article class="card review-card">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-success">PLATINADO</span>
+                                <span class="score-chip">9.5 / 10</span>
+                            </div>
+                            <h3 class="card-title">Tom Clancy's Rainbow Six Siege</h3>
+                            <p class="card-description">Curva de aprendizado intensa, mas a profundidade tática e a destruição de cenários tornam cada partida única.</p>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <span class="author-tag">@zReaperz</span>
+                            <span class="mono-label">14/11/2026</span>
+                        </div>
+                    </article>
+
+                    <article class="card review-card">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">ZERADO</span>
+                                <span class="score-chip">9.8 / 10</span>
+                            </div>
+                            <h3 class="card-title">Elden Ring</h3>
+                            <p class="card-description">Exploração recompensadora do início ao fim, com direção de arte marcante e combates memoráveis.</p>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <span class="author-tag">@NyxValkyrie</span>
+                            <span class="mono-label">12/11/2026</span>
+                        </div>
+                    </article>
+
+                    <article class="card review-card">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-warning">JOGANDO</span>
+                                <span class="score-chip">9.2 / 10</span>
+                            </div>
+                            <h3 class="card-title">Cyberpunk 2077</h3>
+                            <p class="card-description">Ambientação cyberpunk impecável em Night City, trilha sonora envolvente e missões secundárias muito bem escritas.</p>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <span class="author-tag">@KairoTech</span>
+                            <span class="mono-label">10/11/2026</span>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="listas" class="section-block section-alt">
+            <div class="container">
+                <div class="home-section-header">
+                    <div>
+                        <span class="section-kicker">COLEÇÕES PÚBLICAS</span>
+                        <h2>Listas de Jogos</h2>
+                        <p>Explore seleções temáticas criadas por membros da comunidade.</p>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" data-visitor-restricted="criar listas de jogos">+ Nova Lista</button>
+                </div>
+
+                <div class="grid-2">
+                    <article class="card">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-success">PÚBLICA</span>
+                                <span class="mono-label">POR @zReaperz</span>
+                            </div>
+                            <h3 class="card-title">Favoritos Competitivos & Táticos</h3>
+                            <p class="card-description">Jogos focados em estratégia, comunicação em equipe e alta rejogabilidade.</p>
+                            <div class="tag-group">
+                                <span class="badge badge-cyan">Rainbow Six Siege</span>
+                                <span class="badge badge-cyan">Counter-Strike 2</span>
+                                <span class="badge badge-cyan">Valorant</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-success">PÚBLICA</span>
+                                <span class="mono-label">POR @NyxValkyrie</span>
+                            </div>
+                            <h3 class="card-title">Mundos Abertos Indispensáveis</h3>
+                            <p class="card-description">Experiências imersivas com dezenas de horas de exploração e narrativa.</p>
+                            <div class="tag-group">
+                                <span class="badge badge-cyan">Elden Ring</span>
+                                <span class="badge badge-cyan">Cyberpunk 2077</span>
+                                <span class="badge badge-cyan">Red Dead Redemption 2</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="home-cta-box">
+                    <div>
+                        <h3>Pronto para registrar suas próprias análises?</h3>
+                        <p>Crie sua conta em segundos para avaliar jogos, cadastrar estúdios e montar suas listas.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <a href="cadastro.html" class="btn btn-primary">Criar Conta</a>
+                        <a href="login.html" class="btn btn-ghost">Já tenho conta</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="visitor-toast" class="visitor-toast hidden" role="alert" aria-live="assertive">
+        <div class="visitor-toast-header">
+            <span class="badge badge-cyan">ACESSO RESTRITO</span>
+            <button type="button" id="close-visitor-toast" class="toast-close" aria-label="Fechar aviso">×</button>
+        </div>
+        <p id="visitor-toast-text" class="visitor-toast-text">Faça login ou crie uma conta para interagir com a plataforma.</p>
+        <div class="visitor-toast-actions">
+            <a href="login.html" class="btn btn-ghost btn-sm">Entrar</a>
+            <a href="cadastro.html" class="btn btn-primary btn-sm">Criar Conta</a>
+        </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+</body>
+</html>
