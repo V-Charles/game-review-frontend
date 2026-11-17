@@ -4,9 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const visitorToast = document.getElementById('visitor-toast');
     const visitorToastText = document.getElementById('visitor-toast-text');
     const closeVisitorToast = document.getElementById('close-visitor-toast');
-    const registerForm = document.getElementById('register-form');
-    const loginForm = document.getElementById('login-form');
-    const authFeedback = document.getElementById('auth-feedback');
     const searchGamesForm = document.getElementById('search-games-form');
     const searchGamesInput = document.getElementById('search-games-input');
     const resetGamesSearch = document.getElementById('reset-games-search');
@@ -104,28 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleBtn.setAttribute('aria-pressed', String(isHidden));
         });
     });
-
-    if (registerForm) {
-        registerForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm-password').value;
-
-            if (password !== confirmPassword) {
-                showFeedbackMessage(authFeedback, 'As senhas informadas não coincidem. Verifique e tente novamente.', 'error');
-                return;
-            }
-
-            showFeedbackMessage(authFeedback, 'Dados validados com sucesso. Pronto para integração com a API.', 'success');
-        });
-    }
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            showFeedbackMessage(authFeedback, 'Credenciais validadas com sucesso. Pronto para integração com a API.', 'success');
-        });
-    }
 
     document.querySelectorAll('[data-open-modal]').forEach((trigger) => {
         trigger.addEventListener('click', () => {
