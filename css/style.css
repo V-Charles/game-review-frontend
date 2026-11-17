@@ -1053,9 +1053,85 @@ p {
     color: var(--color-text-primary);
 }
 
+.profile-banner {
+    background: var(--gradient-hero);
+    border: 1px solid var(--color-border-bright);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-card);
+    display: grid;
+    grid-template-columns: 1.45fr 0.85fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.profile-identity {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+}
+
+.profile-avatar {
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    background: var(--gradient-brand);
+    color: var(--color-text-inverse);
+    font-family: var(--font-mono);
+    font-size: 1.35rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.profile-summary h2 {
+    font-size: 1.55rem;
+}
+
+.profile-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.danger-box {
+    margin-top: 2rem;
+    padding: 1.75rem 2rem;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-danger);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.danger-box h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.25rem;
+}
+
 @media (max-width: 1024px) {
     .hero-grid,
-    .auth-layout {
+    .auth-layout,
+    .profile-banner {
         grid-template-columns: 1fr;
         padding: 2.25rem;
     }
@@ -1112,8 +1188,13 @@ p {
         padding: 2.5rem 0;
     }
 
-    .hero-grid {
+    .hero-grid,
+    .profile-banner {
         padding: 1.75rem 1.35rem;
+    }
+
+    .profile-identity {
+        flex-direction: column;
     }
 
     .hero-content h1 {
@@ -1132,7 +1213,9 @@ p {
         padding: 1.65rem 1.35rem;
     }
 
-    .form-row {
+    .form-row,
+    .profile-grid,
+    .profile-metrics {
         grid-template-columns: 1fr;
     }
 

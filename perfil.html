@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil — GameReview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="jogos.html" class="nav-link">Jogos</a>
+                <a href="estudios.html" class="nav-link">Estúdios</a>
+                <a href="avaliacoes.html" class="nav-link">Avaliações</a>
+                <a href="listas.html" class="nav-link">Listas</a>
+                <a href="perfil.html" class="nav-link active">Meu Perfil</a>
+                <div class="nav-auth-mobile">
+                    <span class="user-badge">
+                        <span class="user-badge-name">@zReaperz</span>
+                        <span class="user-badge-id">#01</span>
+                    </span>
+                    <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <div class="user-badge">
+                    <span class="user-badge-name">@zReaperz</span>
+                    <span class="user-badge-id">#01</span>
+                </div>
+                <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section class="section-block">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <span class="section-kicker">CONFIGURAÇÕES DO JOGADOR</span>
+                        <h1>Meu Perfil</h1>
+                        <p>Gerencie suas credenciais de acesso e personalize as informações públicas da sua conta.</p>
+                    </div>
+                </div>
+
+                <div class="profile-banner">
+                    <div class="profile-identity">
+                        <div class="profile-avatar" aria-hidden="true">ZR</div>
+                        <div class="profile-summary">
+                            <div class="flex-between">
+                                <span class="badge badge-cyan">CONTA VERIFICADA • ID #01</span>
+                            </div>
+                            <h2 id="profile-display-username">@zReaperz</h2>
+                            <p id="profile-display-bio">Entusiasta de FPS tático, RPGs de mundo aberto e curadoria de catálogos independentes.</p>
+                            <span id="profile-display-birthdate" class="mono-label">NASCIMENTO: 15/08/2002</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-metrics">
+                        <div class="stat-card">
+                            <span class="stat-value">02</span>
+                            <span class="stat-label">Avaliações publicadas</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">02</span>
+                            <span class="stat-label">Listas criadas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-grid">
+                    <section class="auth-card" aria-labelledby="public-profile-title">
+                        <div class="auth-header">
+                            <span class="section-kicker">PERFIL ESTENDIDO</span>
+                            <h2 id="public-profile-title">Informações Públicas</h2>
+                            <p>Dados exibidos junto às suas avaliações e listas na comunidade.</p>
+                        </div>
+
+                        <div id="profile-feedback" class="form-feedback hidden" role="status" aria-live="polite"></div>
+
+                        <form id="profile-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="profile-bio" class="form-label">Biografia</label>
+                                <textarea id="profile-bio" name="biografia" class="form-input form-textarea" rows="4" maxlength="300" placeholder="Conte um pouco sobre seus gêneros e plataformas favoritos...">Entusiasta de FPS tático, RPGs de mundo aberto e curadoria de catálogos independentes.</textarea>
+                                <span class="form-hint">Máximo de 300 caracteres.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="profile-birthdate" class="form-label">Data de nascimento</label>
+                                <input type="date" id="profile-birthdate" name="dataNascimento" class="form-input" value="2002-08-15">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-full">Salvar Perfil Público</button>
+                        </form>
+                    </section>
+
+                    <section class="auth-card" aria-labelledby="account-settings-title">
+                        <div class="auth-header">
+                            <span class="section-kicker">CREDENCIAIS E ACESSO</span>
+                            <h2 id="account-settings-title">Dados da Conta</h2>
+                            <p>Atualize seu nome de usuário, e-mail cadastrado ou redefina sua senha.</p>
+                        </div>
+
+                        <div id="account-feedback" class="form-feedback hidden" role="status" aria-live="polite"></div>
+
+                        <form id="account-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="account-username" class="form-label">Nome de usuário *</label>
+                                <input type="text" id="account-username" name="userName" class="form-input" value="zReaperz" minlength="3" maxlength="50" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="account-email" class="form-label">E-mail *</label>
+                                <input type="email" id="account-email" name="email" class="form-input" value="zreaperz@gamereview.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="account-password" class="form-label">Nova senha (opcional)</label>
+                                <div class="input-wrapper">
+                                    <input type="password" id="account-password" name="senha" class="form-input" placeholder="Preencha apenas se desejar alterar" minlength="6">
+                                    <button type="button" class="input-toggle-btn" data-toggle-password="account-password" aria-pressed="false">Mostrar</button>
+                                </div>
+                                <span class="form-hint">Deixe em branco para manter a senha atual.</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-secondary btn-full">Atualizar Dados da Conta</button>
+                        </form>
+                    </section>
+                </div>
+
+                <div class="danger-box">
+                    <div>
+                        <span class="section-kicker">ENCERRAMENTO DE CONTA</span>
+                        <h3>Excluir Conta Permanentemente</h3>
+                        <p>Remove seu usuário, perfil estendido, avaliações e listas vinculadas da plataforma.</p>
+                    </div>
+                    <button type="button" class="btn btn-danger" data-open-modal="delete-account-modal">Excluir Minha Conta</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="delete-account-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">AÇÃO IRREVERSÍVEL</span>
+                    <h2 id="delete-account-title">Confirmar Exclusão de Conta</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <p>Tem certeza de que deseja excluir permanentemente a sua conta <strong>@zReaperz</strong>? Todos os seus registros serão removidos.</p>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                <button type="button" id="confirm-delete-account" class="btn btn-danger">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+</body>
+</html>
