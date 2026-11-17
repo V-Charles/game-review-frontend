@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliações — GameReview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="jogos.html" class="nav-link">Jogos</a>
+                <a href="estudios.html" class="nav-link">Estúdios</a>
+                <a href="avaliacoes.html" class="nav-link active">Avaliações</a>
+                <a href="listas.html" class="nav-link">Listas</a>
+                <a href="perfil.html" class="nav-link">Meu Perfil</a>
+                <div class="nav-auth-mobile">
+                    <span class="user-badge">
+                        <span class="user-badge-name">@zReaperz</span>
+                        <span class="user-badge-id">#01</span>
+                    </span>
+                    <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <div class="user-badge">
+                    <span class="user-badge-name">@zReaperz</span>
+                    <span class="user-badge-id">#01</span>
+                </div>
+                <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section class="section-block">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <span class="section-kicker">FEED DA COMUNIDADE</span>
+                        <h1>Avaliações de Jogos</h1>
+                        <p>Filtre análises por título, acompanhe o progresso dos jogadores e publique sua nota.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-open-modal="review-modal" data-modal-mode="create">+ Nova Avaliação</button>
+                </div>
+
+                <form id="filter-reviews-form" class="toolbar">
+                    <select id="filter-reviews-game" class="form-select" aria-label="Filtrar avaliações por jogo">
+                        <option value="">Todos os jogos</option>
+                        <option value="1">Tom Clancy's Rainbow Six Siege</option>
+                        <option value="2">Cyberpunk 2077</option>
+                        <option value="3">Elden Ring</option>
+                        <option value="4">Red Dead Redemption 2</option>
+                    </select>
+                    <button type="submit" class="btn btn-secondary">Filtrar</button>
+                    <button type="button" id="reset-reviews-filter" class="btn btn-ghost">Limpar</button>
+                </form>
+
+                <div id="reviews-grid" class="grid-3">
+                    <article class="card review-card" data-game-id="1">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-success">PLATINADO</span>
+                                <span class="score-chip">9.5 / 10</span>
+                            </div>
+                            <h2 class="card-title">Tom Clancy's Rainbow Six Siege</h2>
+                            <p class="card-description">Curva de aprendizado intensa, mas a profundidade tática e a destruição de cenários tornam cada partida única.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="flex-between">
+                                <span class="author-tag">@zReaperz</span>
+                                <span class="mono-label">14/11/2026</span>
+                            </div>
+                            <div class="card-actions">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-open-modal="review-modal"
+                                    data-modal-mode="edit"
+                                    data-review-id="1"
+                                    data-review-game="1"
+                                    data-review-score="9.5"
+                                    data-review-status="PLATINADO"
+                                    data-review-comment="Curva de aprendizado intensa, mas a profundidade tática e a destruição de cenários tornam cada partida única.">
+                                    Editar
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm">Excluir</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="card review-card" data-game-id="3">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">ZERADO</span>
+                                <span class="score-chip">9.8 / 10</span>
+                            </div>
+                            <h2 class="card-title">Elden Ring</h2>
+                            <p class="card-description">Exploração recompensadora do início ao fim, com direção de arte marcante e combates memoráveis.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="flex-between">
+                                <span class="author-tag">@NyxValkyrie</span>
+                                <span class="mono-label">12/11/2026</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="card review-card" data-game-id="2">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-warning">JOGANDO</span>
+                                <span class="score-chip">9.2 / 10</span>
+                            </div>
+                            <h2 class="card-title">Cyberpunk 2077</h2>
+                            <p class="card-description">Ambientação cyberpunk impecável em Night City, trilha sonora envolvente e missões secundárias muito bem escritas.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="flex-between">
+                                <span class="author-tag">@KairoTech</span>
+                                <span class="mono-label">10/11/2026</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="card review-card" data-game-id="4">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">ZERADO</span>
+                                <span class="score-chip">9.7 / 10</span>
+                            </div>
+                            <h2 class="card-title">Red Dead Redemption 2</h2>
+                            <p class="card-description">Narrativa cinematográfica profunda e um mundo vivo com nível de detalhes impressionante.</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="flex-between">
+                                <span class="author-tag">@zReaperz</span>
+                                <span class="mono-label">05/11/2026</span>
+                            </div>
+                            <div class="card-actions">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-open-modal="review-modal"
+                                    data-modal-mode="edit"
+                                    data-review-id="4"
+                                    data-review-game="4"
+                                    data-review-score="9.7"
+                                    data-review-status="ZERADO"
+                                    data-review-comment="Narrativa cinematográfica profunda e um mundo vivo com nível de detalhes impressionante.">
+                                    Editar
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm">Excluir</button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div id="reviews-empty-state" class="empty-state hidden">
+                    <p>Nenhuma avaliação encontrada para o jogo selecionado.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="review-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">ANÁLISE DE JOGO</span>
+                    <h2 id="review-modal-title">Nova Avaliação</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <form id="review-form" class="auth-form">
+                <input type="hidden" id="review-id" name="id">
+
+                <div class="form-group">
+                    <label for="review-game" class="form-label">Jogo avaliado *</label>
+                    <select id="review-game" name="jogoId" class="form-select" required>
+                        <option value="">Selecione um jogo</option>
+                        <option value="1">Tom Clancy's Rainbow Six Siege</option>
+                        <option value="2">Cyberpunk 2077</option>
+                        <option value="3">Elden Ring</option>
+                        <option value="4">Red Dead Redemption 2</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="review-score" class="form-label">Nota (0 a 10) *</label>
+                        <input type="number" id="review-score" name="nota" class="form-input" min="0" max="10" step="0.1" placeholder="Ex: 9.5" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="review-status" class="form-label">Status de progresso *</label>
+                        <select id="review-status" name="status" class="form-select" required>
+                            <option value="JOGANDO">Jogando</option>
+                            <option value="ZERADO">Zerado</option>
+                            <option value="PLATINADO">Platinado</option>
+                            <option value="PAUSADO">Pausado</option>
+                            <option value="ABANDONADO">Abandonado</option>
+                            <option value="QUERO_JOGAR">Quero Jogar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="review-comment" class="form-label">Comentário / Análise</label>
+                    <textarea id="review-comment" name="comentario" class="form-input form-textarea" rows="4" maxlength="500" placeholder="Compartilhe sua experiência com o jogo..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Publicar Avaliação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+</body>
+</html>

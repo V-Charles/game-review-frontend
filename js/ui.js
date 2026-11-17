@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetStudiosSearch = document.getElementById('reset-studios-search');
     const studiosEmptyState = document.getElementById('studios-empty-state');
     const studioForm = document.getElementById('studio-form');
+    const filterReviewsForm = document.getElementById('filter-reviews-form');
+    const filterReviewsGame = document.getElementById('filter-reviews-game');
+    const resetReviewsFilter = document.getElementById('reset-reviews-filter');
+    const reviewsEmptyState = document.getElementById('reviews-empty-state');
+    const reviewForm = document.getElementById('review-form');
 
     function showAuthFeedback(message, type) {
         if (!authFeedback) {
@@ -146,6 +151,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            if (modalId === 'review-modal') {
+                const modalTitle = document.getElementById('review-modal-title');
+                if (mode === 'edit') {
+                    modalTitle.textContent = 'Editar Avaliação';
+                    document.getElementById('review-id').value = trigger.dataset.reviewId || '';
+                    document.getElementById('review-game').value = trigger.dataset.reviewGame || '';
+                    document.getElementById('review-score').value = trigger.dataset.reviewScore || '';
+                    document.getElementById('review-status').value = trigger.dataset.reviewStatus || 'JOGANDO';
+                    document.getElementById('review-comment').value = trigger.dataset.reviewComment || '';
+                } else {
+                    modalTitle.textContent = 'Nova Avaliação';
+                    if (reviewForm) {
+                        reviewForm.reset();
+                    }
+                    document.getElementById('review-id').value = '';
+                }
+            }
+
             openModal(modalId);
         });
     });
@@ -245,6 +268,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (studioForm) {
         studioForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            closeAllModals();
+        });
+    }
+
+    if (filterReviewsForm && filterReviewsGame) {
+        filterReviewsForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const selectedGameId = filterReviewsGame.value;
+            const cards = document.querySelectorAll('#reviews-grid .review-card');
+            let visibleCount = 0;
+
+            cards.forEach((card) => {
+                const cardGameId = card.dataset.gameId || '';
+                const match = !selectedGameId || cardGameId === selectedGameId;
+                card.classList.toggle('hidden', !match);
+                if (match) {
+                    visibleCount += 1;
+                }
+            });
+
+            if (reviewsEmptyState) {
+                reviewsEmptyState.classList.toggle('hidden', visibleCount > 0);
+            }
+        });
+    }
+
+    if (resetReviewsFilter && filterReviewsGame) {
+        resetReviewsFilter.addEventListener('click', () => {
+            filterReviewsGame.value = '';
+            document.querySelectorAll('#reviews-grid .review-card').forEach((card) => {
+                card.classList.remove('hidden');
+            });
+            if (reviewsEmptyState) {
+                reviewsEmptyState.classList.add('hidden');
+            }
+        });
+    }
+
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', (event) => {
             event.preventDefault();
             closeAllModals();
         });
