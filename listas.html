@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listas de Jogos — GameReview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="jogos.html" class="nav-link">Jogos</a>
+                <a href="estudios.html" class="nav-link">Estúdios</a>
+                <a href="avaliacoes.html" class="nav-link">Avaliações</a>
+                <a href="listas.html" class="nav-link active">Listas</a>
+                <a href="perfil.html" class="nav-link">Meu Perfil</a>
+                <div class="nav-auth-mobile">
+                    <span class="user-badge">
+                        <span class="user-badge-name">@zReaperz</span>
+                        <span class="user-badge-id">#01</span>
+                    </span>
+                    <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <div class="user-badge">
+                    <span class="user-badge-name">@zReaperz</span>
+                    <span class="user-badge-id">#01</span>
+                </div>
+                <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section class="section-block">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <span class="section-kicker">COLEÇÕES TEMÁTICAS</span>
+                        <h1>Listas de Jogos</h1>
+                        <p>Explore seleções públicas da comunidade ou gerencie suas listas personalizadas.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-open-modal="list-modal" data-modal-mode="create">+ Nova Lista</button>
+                </div>
+
+                <div class="pill-group" role="group" aria-label="Filtrar listas de jogos">
+                    <button type="button" class="pill-btn active" data-list-filter="all">Todas as Listas</button>
+                    <button type="button" class="pill-btn" data-list-filter="public">Públicas</button>
+                    <button type="button" class="pill-btn" data-list-filter="mine">Minhas Listas</button>
+                </div>
+
+                <div id="lists-grid" class="grid-2">
+                    <article class="card list-card" data-list-public="true" data-list-owner="true">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-success">PÚBLICA</span>
+                                <span class="mono-label">POR @zReaperz</span>
+                            </div>
+                            <h2 class="card-title">Favoritos Competitivos & Táticos</h2>
+                            <p class="card-description">Jogos focados em estratégia, comunicação em equipe e alta rejogabilidade.</p>
+                            <div class="tag-group">
+                                <span class="badge badge-cyan">Tom Clancy's Rainbow Six Siege</span>
+                                <span class="badge badge-cyan">Cyberpunk 2077</span>
+                            </div>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <span class="mono-label">2 JOGOS VINCULADOS</span>
+                            <div class="flex-between">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-open-modal="list-modal"
+                                    data-modal-mode="edit"
+                                    data-list-id="1"
+                                    data-list-name="Favoritos Competitivos & Táticos"
+                                    data-list-desc="Jogos focados em estratégia, comunicação em equipe e alta rejogabilidade."
+                                    data-list-public="true"
+                                    data-list-games="1,2">
+                                    Editar
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm">Excluir</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="card list-card" data-list-public="true" data-list-owner="false">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-success">PÚBLICA</span>
+                                <span class="mono-label">POR @NyxValkyrie</span>
+                            </div>
+                            <h2 class="card-title">Mundos Abertos Indispensáveis</h2>
+                            <p class="card-description">Experiências imersivas com dezenas de horas de exploração e narrativa.</p>
+                            <div class="tag-group">
+                                <span class="badge badge-cyan">Elden Ring</span>
+                                <span class="badge badge-cyan">Cyberpunk 2077</span>
+                                <span class="badge badge-cyan">Red Dead Redemption 2</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="mono-label">3 JOGOS VINCULADOS</span>
+                        </div>
+                    </article>
+
+                    <article class="card list-card" data-list-public="false" data-list-owner="true">
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-warning">PRIVADA</span>
+                                <span class="mono-label">POR @zReaperz</span>
+                            </div>
+                            <h2 class="card-title">Backlog 2026 — Prioridades</h2>
+                            <p class="card-description">Títulos reservados para finalizar ao longo da temporada.</p>
+                            <div class="tag-group">
+                                <span class="badge badge-cyan">Elden Ring</span>
+                                <span class="badge badge-cyan">Red Dead Redemption 2</span>
+                            </div>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <span class="mono-label">2 JOGOS VINCULADOS</span>
+                            <div class="flex-between">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-open-modal="list-modal"
+                                    data-modal-mode="edit"
+                                    data-list-id="3"
+                                    data-list-name="Backlog 2026 — Prioridades"
+                                    data-list-desc="Títulos reservados para finalizar ao longo da temporada."
+                                    data-list-public="false"
+                                    data-list-games="3,4">
+                                    Editar
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm">Excluir</button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div id="lists-empty-state" class="empty-state hidden">
+                    <p>Nenhuma lista encontrada para o filtro selecionado.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="list-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="list-modal-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">COLEÇÃO DE JOGOS</span>
+                    <h2 id="list-modal-title">Nova Lista de Jogos</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <form id="list-form" class="auth-form">
+                <input type="hidden" id="list-id" name="id">
+
+                <div class="form-group">
+                    <label for="list-name" class="form-label">Nome da lista *</label>
+                    <input type="text" id="list-name" name="nome" class="form-input" placeholder="Ex: Favoritos da Vida" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="list-description" class="form-label">Descrição</label>
+                    <textarea id="list-description" name="descricao" class="form-input form-textarea" rows="3" maxlength="255" placeholder="Descreva o tema desta coleção..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="list-public" name="isPublica" checked>
+                        <span>Lista pública (visível para toda a comunidade)</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <span class="form-label">Jogos na lista</span>
+                    <div id="list-games-checklist" class="checklist-box">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="listGames" value="1">
+                            <span>Tom Clancy's Rainbow Six Siege</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="listGames" value="2">
+                            <span>Cyberpunk 2077</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="listGames" value="3">
+                            <span>Elden Ring</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="listGames" value="4">
+                            <span>Red Dead Redemption 2</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Lista</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+</body>
+</html>

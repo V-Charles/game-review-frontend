@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetReviewsFilter = document.getElementById('reset-reviews-filter');
     const reviewsEmptyState = document.getElementById('reviews-empty-state');
     const reviewForm = document.getElementById('review-form');
+    const listFilterButtons = document.querySelectorAll('[data-list-filter]');
+    const listsEmptyState = document.getElementById('lists-empty-state');
+    const listForm = document.getElementById('list-form');
 
     function showAuthFeedback(message, type) {
         if (!authFeedback) {
@@ -169,6 +172,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            if (modalId === 'list-modal') {
+                const modalTitle = document.getElementById('list-modal-title');
+                const gameCheckboxes = document.querySelectorAll('#list-games-checklist input[name="listGames"]');
+
+                if (mode === 'edit') {
+                    modalTitle.textContent = 'Editar Lista';
+                    document.getElementById('list-id').value = trigger.dataset.listId || '';
+                    document.getElementById('list-name').value = trigger.dataset.listName || '';
+                    document.getElementById('list-description').value = trigger.dataset.listDesc || '';
+                    document.getElementById('list-public').checked = trigger.dataset.listPublic === 'true';
+
+                    const selectedIds = new Set((trigger.dataset.listGames || '').split(',').filter(Boolean));
+                    gameCheckboxes.forEach((checkbox) => {
+                        checkbox.checked = selectedIds.has(checkbox.value);
+                    });
+                } else {
+                    modalTitle.textContent = 'Nova Lista de Jogos';
+                    if (listForm) {
+                        listForm.reset();
+                    }
+                    document.getElementById('list-id').value = '';
+                    document.getElementById('list-public').checked = true;
+                    gameCheckboxes.forEach((checkbox) => {
+                        checkbox.checked = false;
+                    });
+                }
+            }
+
             openModal(modalId);
         });
     });
@@ -309,6 +340,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (reviewForm) {
         reviewForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            closeAllModals();
+        });
+    }
+
+    listFilterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const filter = button.dataset.listFilter || 'all';
+            listFilterButtons.forEach((btn) => {
+                btn.classList.toggle('active', btn === button);
+            });
+
+            const cards = document.querySelectorAll('#lists-grid .list-card');
+            let visibleCount = 0;
+
+            cards.forEach((card) => {
+                const isPublic = card.dataset.listPublic === 'true';
+                const isOwner = card.dataset.listOwner === 'true';
+                let match = true;
+
+                if (filter === 'public') {
+                    match = isPublic;
+                } else if (filter === 'mine') {
+                    match = isOwner;
+                }
+
+                card.classList.toggle('hidden', !match);
+                if (match) {
+                    visibleCount += 1;
+                }
+            });
+
+            if (listsEmptyState) {
+                listsEmptyState.classList.toggle('hidden', visibleCount > 0);
+            }
+        });
+    });
+
+    if (listForm) {
+        listForm.addEventListener('submit', (event) => {
             event.preventDefault();
             closeAllModals();
         });
