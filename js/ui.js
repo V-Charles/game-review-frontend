@@ -72,14 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.querySelectorAll('[data-visitor-restricted]').forEach((trigger) => {
-        trigger.addEventListener('click', () => {
-            const actionLabel = trigger.dataset.visitorRestricted || 'realizar esta ação';
-            if (visitorToast && visitorToastText) {
-                visitorToastText.textContent = `Para ${actionLabel}, entre na sua conta ou faça seu cadastro gratuito.`;
-                visitorToast.classList.remove('hidden');
-            }
-        });
+    document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('[data-visitor-restricted]');
+        if (!trigger) {
+            return;
+        }
+        if (typeof isAuthenticated === 'function' && isAuthenticated() && trigger.dataset.authTarget) {
+            window.location.href = trigger.dataset.authTarget;
+            return;
+        }
+        const actionLabel = trigger.dataset.visitorRestricted || 'realizar esta ação';
+        if (visitorToast && visitorToastText) {
+            visitorToastText.textContent = `Para ${actionLabel}, entre na sua conta ou faça seu cadastro gratuito.`;
+            visitorToast.classList.remove('hidden');
+        }
     });
 
     if (closeVisitorToast && visitorToast) {
