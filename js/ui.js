@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetGamesSearch = document.getElementById('reset-games-search');
     const gamesEmptyState = document.getElementById('games-empty-state');
     const gameForm = document.getElementById('game-form');
+    const searchStudiosForm = document.getElementById('search-studios-form');
+    const searchStudiosInput = document.getElementById('search-studios-input');
+    const resetStudiosSearch = document.getElementById('reset-studios-search');
+    const studiosEmptyState = document.getElementById('studios-empty-state');
+    const studioForm = document.getElementById('studio-form');
 
     function showAuthFeedback(message, type) {
         if (!authFeedback) {
@@ -104,10 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-open-modal]').forEach((trigger) => {
         trigger.addEventListener('click', () => {
             const modalId = trigger.dataset.openModal;
+            const mode = trigger.dataset.modalMode;
+
             if (modalId === 'game-modal') {
                 const modalTitle = document.getElementById('game-modal-title');
-                const mode = trigger.dataset.modalMode;
-
                 if (mode === 'edit') {
                     modalTitle.textContent = 'Editar Jogo';
                     document.getElementById('game-id').value = trigger.dataset.gameId || '';
@@ -124,6 +129,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('game-id').value = '';
                 }
             }
+
+            if (modalId === 'studio-modal') {
+                const modalTitle = document.getElementById('studio-modal-title');
+                if (mode === 'edit') {
+                    modalTitle.textContent = 'Editar Estúdio';
+                    document.getElementById('studio-id').value = trigger.dataset.studioId || '';
+                    document.getElementById('studio-name').value = trigger.dataset.studioTitle || '';
+                    document.getElementById('studio-country').value = trigger.dataset.studioCountry || '';
+                } else {
+                    modalTitle.textContent = 'Cadastrar Novo Estúdio';
+                    if (studioForm) {
+                        studioForm.reset();
+                    }
+                    document.getElementById('studio-id').value = '';
+                }
+            }
+
             openModal(modalId);
         });
     });
@@ -182,6 +204,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (gameForm) {
         gameForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            closeAllModals();
+        });
+    }
+
+    if (searchStudiosForm && searchStudiosInput) {
+        searchStudiosForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const query = searchStudiosInput.value.trim().toLowerCase();
+            const cards = document.querySelectorAll('#studios-grid .studio-card');
+            let visibleCount = 0;
+
+            cards.forEach((card) => {
+                const name = card.dataset.studioName || '';
+                const match = name.includes(query);
+                card.classList.toggle('hidden', !match);
+                if (match) {
+                    visibleCount += 1;
+                }
+            });
+
+            if (studiosEmptyState) {
+                studiosEmptyState.classList.toggle('hidden', visibleCount > 0);
+            }
+        });
+    }
+
+    if (resetStudiosSearch && searchStudiosInput) {
+        resetStudiosSearch.addEventListener('click', () => {
+            searchStudiosInput.value = '';
+            document.querySelectorAll('#studios-grid .studio-card').forEach((card) => {
+                card.classList.remove('hidden');
+            });
+            if (studiosEmptyState) {
+                studiosEmptyState.classList.add('hidden');
+            }
+        });
+    }
+
+    if (studioForm) {
+        studioForm.addEventListener('submit', (event) => {
             event.preventDefault();
             closeAllModals();
         });
