@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliações da Comunidade — GameReview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="jogos.html" class="nav-link">Jogos</a>
+                <a href="estudios.html" class="nav-link">Estúdios</a>
+                <a href="avaliacoes.html" class="nav-link active">Avaliações</a>
+                <a href="listas.html" class="nav-link">Listas</a>
+                <a href="perfil.html" class="nav-link">Meu Perfil</a>
+                <div class="nav-auth-mobile">
+                    <span class="user-badge">
+                        <span class="user-badge-name">@jogador</span>
+                        <span class="user-badge-id">#00</span>
+                    </span>
+                    <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <div class="user-badge">
+                    <span class="user-badge-name">@jogador</span>
+                    <span class="user-badge-id">#00</span>
+                </div>
+                <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section class="section-block">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <span class="section-kicker">FEED DA COMUNIDADE</span>
+                        <h1>Avaliações de Jogos</h1>
+                        <p>Compartilhe suas notas, status de progresso e análises detalhadas sobre os títulos do catálogo.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-open-modal="review-modal" data-modal-mode="create">+ Nova Avaliação</button>
+                </div>
+
+                <div id="reviews-feedback" class="form-feedback section-feedback hidden" role="status" aria-live="polite"></div>
+
+                <form id="filter-reviews-form" class="toolbar">
+                    <select id="filter-reviews-game" class="form-select">
+                        <option value="">Todos os jogos cadastrados</option>
+                    </select>
+                    <button type="submit" class="btn btn-secondary">Filtrar</button>
+                    <button type="button" id="reset-reviews-filter" class="btn btn-ghost">Limpar</button>
+                </form>
+
+                <div id="reviews-grid" class="grid-3">
+                    <div class="empty-state">
+                        <p>Carregando avaliações publicadas...</p>
+                    </div>
+                </div>
+
+                <div id="reviews-empty-state" class="empty-state hidden">
+                    <p>Nenhuma avaliação encontrada para o filtro aplicado.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="review-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">REGISTRAR ANÁLISE</span>
+                    <h2 id="review-modal-title">Nova Avaliação</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <div id="review-modal-feedback" class="form-feedback hidden" role="alert"></div>
+
+            <form id="review-form" class="auth-form">
+                <input type="hidden" id="review-id" name="id">
+
+                <div class="form-group">
+                    <div class="flex-between">
+                        <label for="review-game" class="form-label">Jogo avaliado *</label>
+                        <button type="button" id="reload-review-games" class="btn btn-ghost btn-sm hidden">Recarregar jogos</button>
+                    </div>
+                    <select id="review-game" name="jogoId" class="form-select" required>
+                        <option value="">Carregando jogos...</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="review-score" class="form-label">Nota (0 a 10) *</label>
+                        <input type="number" id="review-score" name="nota" class="form-input" placeholder="Ex: 9.5" min="0" max="10" step="0.1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="review-status" class="form-label">Status de progresso *</label>
+                        <select id="review-status" name="status" class="form-select" required>
+                            <option value="JOGANDO">Jogando</option>
+                            <option value="ZERADO">Zerado</option>
+                            <option value="PLATINADO">Platinado</option>
+                            <option value="ABANDONADO">Abandonado</option>
+                            <option value="QUERO_JOGAR">Quero Jogar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="review-comment" class="form-label">Comentário da análise *</label>
+                    <textarea id="review-comment" name="comentario" class="form-input form-textarea" placeholder="Escreva sua opinião sobre jogabilidade, história, trilha sonora e desempenho..." required></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Publicar Avaliação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="delete-review-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="delete-review-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">CONFIRMAÇÃO DE EXCLUSÃO</span>
+                    <h2 id="delete-review-title">Excluir Avaliação</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <p>Tem certeza de que deseja excluir sua avaliação do jogo <strong id="delete-review-name"></strong>? Esta ação não poderá ser desfeita.</p>
+            <input type="hidden" id="delete-review-id">
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                <button type="button" id="confirm-delete-review" class="btn btn-danger">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>

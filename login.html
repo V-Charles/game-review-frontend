@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar — GameReview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="index.html#inicio" class="nav-link">Início</a>
+                <a href="index.html#catalogo" class="nav-link">Jogos</a>
+                <a href="index.html#estudios" class="nav-link">Estúdios</a>
+                <a href="index.html#avaliacoes" class="nav-link">Avaliações</a>
+                <a href="index.html#listas" class="nav-link">Listas</a>
+                <div class="nav-auth-mobile">
+                    <a href="login.html" class="btn btn-ghost btn-sm">Entrar</a>
+                    <a href="cadastro.html" class="btn btn-primary btn-sm">Criar Conta</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-ghost btn-sm">Voltar ao Início</a>
+                <a href="cadastro.html" class="btn btn-primary btn-sm">Criar Conta</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main auth-main">
+        <div class="container auth-layout">
+            <aside class="auth-aside" aria-label="Informações de acesso">
+                <span class="badge badge-violet">AUTENTICAÇÃO • SESSÃO SEGURA</span>
+                <h1>Bem-vindo de volta ao GameReview.</h1>
+                <p>Acesse sua conta para continuar avaliando jogos, atualizando seu perfil estendido e gerenciando suas listas da comunidade.</p>
+
+                <div class="auth-aside-list">
+                    <div class="auth-aside-item">
+                        <span class="mono-label">01 // PAINEL DO JOGADOR</span>
+                        <strong>Retome suas avaliações e atualize o status dos jogos em andamento</strong>
+                    </div>
+                    <div class="auth-aside-item">
+                        <span class="mono-label">02 // CURADORIA ATIVA</span>
+                        <strong>Adicione ou remova títulos das suas listas públicas e privadas</strong>
+                    </div>
+                    <div class="auth-aside-item">
+                        <span class="mono-label">03 // PERFIL ESTENDIDO</span>
+                        <strong>Personalize sua biografia pública e dados da conta</strong>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="auth-card" aria-labelledby="login-title">
+                <div class="auth-header">
+                    <span class="section-kicker">ACESSO À PLATAFORMA</span>
+                    <h2 id="login-title">Entrar na Conta</h2>
+                    <p>Informe suas credenciais cadastradas para iniciar sua sessão.</p>
+                </div>
+
+                <div id="auth-feedback" class="form-feedback hidden" role="status" aria-live="polite"></div>
+
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-email" class="form-label">E-mail</label>
+                        <input type="email" id="login-email" name="email" class="form-input" placeholder="seuemail@dominio.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password" class="form-label">Senha</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="login-password" name="senha" class="form-input" placeholder="Digite sua senha" minlength="6" required>
+                            <button type="button" class="input-toggle-btn" data-toggle-password="login-password" aria-pressed="false">Mostrar</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Acessar Plataforma</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Ainda não possui uma conta? <a href="cadastro.html" class="auth-link">Criar conta gratuita</a></p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>

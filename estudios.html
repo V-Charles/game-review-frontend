@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estúdios — GameReview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="jogos.html" class="nav-link">Jogos</a>
+                <a href="estudios.html" class="nav-link active">Estúdios</a>
+                <a href="avaliacoes.html" class="nav-link">Avaliações</a>
+                <a href="listas.html" class="nav-link">Listas</a>
+                <a href="perfil.html" class="nav-link">Meu Perfil</a>
+                <div class="nav-auth-mobile">
+                    <span class="user-badge">
+                        <span class="user-badge-name">@jogador</span>
+                        <span class="user-badge-id">#00</span>
+                    </span>
+                    <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <div class="user-badge">
+                    <span class="user-badge-name">@jogador</span>
+                    <span class="user-badge-id">#00</span>
+                </div>
+                <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section class="section-block">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <span class="section-kicker">DESENVOLVEDORAS</span>
+                        <h1>Estúdios Cadastrados</h1>
+                        <p>Gerencie os estúdios responsáveis pelo desenvolvimento dos jogos da plataforma.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-open-modal="studio-modal" data-modal-mode="create">+ Novo Estúdio</button>
+                </div>
+
+                <div id="studios-feedback" class="form-feedback section-feedback hidden" role="status" aria-live="polite"></div>
+
+                <form id="search-studios-form" class="toolbar">
+                    <input type="search" id="search-studios-input" class="form-input" placeholder="Buscar estúdio por nome ou país...">
+                    <button type="submit" class="btn btn-secondary">Buscar</button>
+                    <button type="button" id="reset-studios-search" class="btn btn-ghost">Limpar</button>
+                </form>
+
+                <div id="studios-grid" class="grid-3">
+                    <div class="empty-state">
+                        <p>Carregando estúdios cadastrados...</p>
+                    </div>
+                </div>
+
+                <div id="studios-empty-state" class="empty-state hidden">
+                    <p>Nenhum estúdio encontrado para o filtro aplicado.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="studio-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="studio-modal-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">GERENCIAR ESTÚDIOS</span>
+                    <h2 id="studio-modal-title">Cadastrar Novo Estúdio</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <form id="studio-form" class="auth-form">
+                <input type="hidden" id="studio-id" name="id">
+
+                <div class="form-group">
+                    <label for="studio-name" class="form-label">Nome do estúdio *</label>
+                    <input type="text" id="studio-name" name="nomeEstudio" class="form-input" placeholder="Ex: Ubisoft Montreal" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="studio-country" class="form-label">País de fundação *</label>
+                    <input type="text" id="studio-country" name="paisFundacao" class="form-input" placeholder="Ex: Canadá" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Estúdio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="delete-studio-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="delete-studio-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">CONFIRMAÇÃO DE EXCLUSÃO</span>
+                    <h2 id="delete-studio-title">Excluir Estúdio</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <p>Tem certeza de que deseja excluir o estúdio <strong id="delete-studio-name"></strong>? Esta ação não poderá ser desfeita.</p>
+            <input type="hidden" id="delete-studio-id">
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                <button type="button" id="confirm-delete-studio" class="btn btn-danger">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>

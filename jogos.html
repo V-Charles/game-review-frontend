@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Jogos — GameReview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="jogos.html" class="nav-link active">Jogos</a>
+                <a href="estudios.html" class="nav-link">Estúdios</a>
+                <a href="avaliacoes.html" class="nav-link">Avaliações</a>
+                <a href="listas.html" class="nav-link">Listas</a>
+                <a href="perfil.html" class="nav-link">Meu Perfil</a>
+                <div class="nav-auth-mobile">
+                    <span class="user-badge">
+                        <span class="user-badge-name">@jogador</span>
+                        <span class="user-badge-id">#00</span>
+                    </span>
+                    <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <div class="user-badge">
+                    <span class="user-badge-name">@jogador</span>
+                    <span class="user-badge-id">#00</span>
+                </div>
+                <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section class="section-block">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <span class="section-kicker">CATÁLOGO OFICIAL</span>
+                        <h1>Catálogo de Jogos</h1>
+                        <p>Explore os títulos cadastrados na plataforma ou adicione novos jogos ao acervo.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-open-modal="game-modal" data-modal-mode="create">+ Novo Jogo</button>
+                </div>
+
+                <div id="games-feedback" class="form-feedback section-feedback hidden" role="status" aria-live="polite"></div>
+
+                <form id="search-games-form" class="toolbar">
+                    <input type="search" id="search-games-input" class="form-input" placeholder="Buscar jogo por título ou estúdio...">
+                    <button type="submit" class="btn btn-secondary">Buscar</button>
+                    <button type="button" id="reset-games-search" class="btn btn-ghost">Limpar</button>
+                </form>
+
+                <div id="games-grid" class="grid-4">
+                    <div class="empty-state">
+                        <p>Carregando jogos cadastrados...</p>
+                    </div>
+                </div>
+
+                <div id="games-empty-state" class="empty-state hidden">
+                    <p>Nenhum jogo encontrado para o filtro aplicado.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="game-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="game-modal-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">GERENCIAR CATÁLOGO</span>
+                    <h2 id="game-modal-title">Cadastrar Novo Jogo</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <form id="game-form" class="auth-form">
+                <input type="hidden" id="game-id" name="id">
+
+                <div class="form-group">
+                    <label for="game-title" class="form-label">Título do jogo *</label>
+                    <input type="text" id="game-title" name="titulo" class="form-input" placeholder="Ex: Elden Ring" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="game-studio" class="form-label">Estúdio desenvolvedor *</label>
+                    <select id="game-studio" name="estudioId" class="form-select" required>
+                        <option value="">Carregando estúdios...</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="game-release" class="form-label">Data de lançamento</label>
+                        <input type="date" id="game-release" name="dataLancamento" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="game-igdb" class="form-label">ID IGDB (opcional)</label>
+                        <input type="number" id="game-igdb" name="igdbId" class="form-input" placeholder="Ex: 119133" min="1">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="game-cover" class="form-label">URL da capa (opcional)</label>
+                    <input type="url" id="game-cover" name="capaUrl" class="form-input" placeholder="https://...">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Jogo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="delete-game-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="delete-game-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">CONFIRMAÇÃO DE EXCLUSÃO</span>
+                    <h2 id="delete-game-title">Excluir Jogo</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <p>Tem certeza de que deseja excluir o jogo <strong id="delete-game-name"></strong>? Esta ação não poderá ser desfeita.</p>
+            <input type="hidden" id="delete-game-id">
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                <button type="button" id="confirm-delete-game" class="btn btn-danger">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameReview — Catálogo e Avaliações da Comunidade</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="#inicio" class="nav-link active">Início</a>
+                <a href="#catalogo" class="nav-link">Jogos</a>
+                <a href="#estudios" class="nav-link">Estúdios</a>
+                <a href="#avaliacoes" class="nav-link">Avaliações</a>
+                <a href="#listas" class="nav-link">Listas</a>
+                <div id="home-mobile-auth" class="nav-auth-mobile">
+                    <a href="login.html" class="btn btn-ghost btn-sm">Entrar</a>
+                    <a href="cadastro.html" class="btn btn-primary btn-sm">Criar Conta</a>
+                </div>
+            </nav>
+
+            <div id="home-header-actions" class="header-actions">
+                <a href="login.html" class="btn btn-ghost btn-sm">Entrar</a>
+                <a href="cadastro.html" class="btn btn-primary btn-sm">Criar Conta</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section id="inicio" class="hero">
+            <div class="container">
+                <div class="hero-grid">
+                    <div class="hero-content">
+                        <span class="badge badge-cyan">PLATAFORMA GAMER • CATÁLOGO & REVIEWS</span>
+                        <h1>Catalogar, avaliar e organizar sua jornada nos games.</h1>
+                        <p>Explore títulos cadastrados pela comunidade, acompanhe análises detalhadas com notas e status de progresso e monte suas próprias listas temáticas.</p>
+                        <div class="hero-actions">
+                            <a href="cadastro.html" id="hero-primary-cta" class="btn btn-primary">Começar Gratuitamente</a>
+                            <a href="#catalogo" class="btn btn-secondary">Explorar Catálogo</a>
+                        </div>
+                    </div>
+
+                    <aside class="hero-panel" aria-label="Resumo da plataforma">
+                        <div class="hero-panel-header">
+                            <span class="status-dot"></span>
+                            <span class="mono-label">API CONECTADA • TEMPO REAL</span>
+                        </div>
+                        <div class="hero-panel-list">
+                            <div class="hero-panel-item">
+                                <span class="mono-label">01 // ACERVO INTEGRADO</span>
+                                <strong>Jogos vinculados aos seus estúdios desenvolvedores</strong>
+                            </div>
+                            <div class="hero-panel-item">
+                                <span class="mono-label">02 // ANÁLISES DA COMUNIDADE</span>
+                                <strong>Notas de 0 a 10 com status de zerado, platinado ou jogando</strong>
+                            </div>
+                            <div class="hero-panel-item">
+                                <span class="mono-label">03 // CURADORIA PESSOAL</span>
+                                <strong>Listas públicas e privadas para organizar seu backlog</strong>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-strip" aria-label="Indicadores da plataforma">
+            <div class="container">
+                <div class="grid-4">
+                    <div class="stat-card">
+                        <span id="stat-games" class="stat-value">--</span>
+                        <span class="stat-label">Jogos no catálogo</span>
+                    </div>
+                    <div class="stat-card">
+                        <span id="stat-studios" class="stat-value">--</span>
+                        <span class="stat-label">Estúdios cadastrados</span>
+                    </div>
+                    <div class="stat-card">
+                        <span id="stat-reviews" class="stat-value">--</span>
+                        <span class="stat-label">Avaliações publicadas</span>
+                    </div>
+                    <div class="stat-card">
+                        <span id="stat-lists" class="stat-value">--</span>
+                        <span class="stat-label">Listas criadas</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="catalogo" class="section-block">
+            <div class="container">
+                <div class="home-section-header">
+                    <div>
+                        <span class="section-kicker">ACERVO EM DESTAQUE</span>
+                        <h2>Jogos Recentes</h2>
+                        <p>Títulos disponíveis no catálogo oficial da plataforma.</p>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" data-auth-target="jogos.html" data-visitor-restricted="cadastrar ou gerenciar jogos">Ver Catálogo Completo</button>
+                </div>
+
+                <div id="home-games-grid" class="grid-4">
+                    <div class="empty-state">
+                        <p>Carregando jogos do catálogo...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="estudios" class="section-block section-alt">
+            <div class="container">
+                <div class="home-section-header">
+                    <div>
+                        <span class="section-kicker">DESENVOLVEDORAS</span>
+                        <h2>Estúdios Cadastrados</h2>
+                        <p>Empresas responsáveis pelos títulos catalogados no GameReview.</p>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" data-auth-target="estudios.html" data-visitor-restricted="explorar ou cadastrar estúdios">Gerenciar Estúdios</button>
+                </div>
+
+                <div id="home-studios-grid" class="grid-3">
+                    <div class="empty-state">
+                        <p>Carregando estúdios cadastrados...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="avaliacoes" class="section-block">
+            <div class="container">
+                <div class="home-section-header">
+                    <div>
+                        <span class="section-kicker">FEED DA COMUNIDADE</span>
+                        <h2>Últimas Avaliações</h2>
+                        <p>Opiniões, notas e status de progresso compartilhados pelos jogadores.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" data-auth-target="avaliacoes.html" data-visitor-restricted="publicar uma avaliação">+ Publicar Avaliação</button>
+                </div>
+
+                <div id="home-reviews-grid" class="grid-3">
+                    <div class="empty-state">
+                        <p>Carregando avaliações recentes...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="listas" class="section-block section-alt">
+            <div class="container">
+                <div class="home-section-header">
+                    <div>
+                        <span class="section-kicker">CURADORIA</span>
+                        <h2>Listas da Comunidade</h2>
+                        <p>Seleções temáticas criadas por membros da plataforma.</p>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" data-auth-target="listas.html" data-visitor-restricted="criar ou gerenciar listas">Criar Minha Lista</button>
+                </div>
+
+                <div id="home-lists-grid" class="grid-2">
+                    <div class="empty-state">
+                        <p>Carregando listas da comunidade...</p>
+                    </div>
+                </div>
+
+                <div class="home-cta-box">
+                    <div>
+                        <span class="section-kicker">ACESSO COMPLETO</span>
+                        <h3>Pronto para registrar suas próprias análises?</h3>
+                        <p>Crie sua conta gratuita para avaliar jogos, cadastrar novos títulos e montar suas listas.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <a href="cadastro.html" class="btn btn-primary">Criar Conta Gratuita</a>
+                        <a href="login.html" class="btn btn-ghost">Já tenho conta</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="visitor-toast" class="visitor-toast hidden" role="alert">
+        <div class="visitor-toast-header">
+            <span class="badge badge-cyan">MODO VISITANTE</span>
+            <button type="button" id="close-visitor-toast" class="toast-close" aria-label="Fechar aviso">×</button>
+        </div>
+        <p id="visitor-toast-text" class="visitor-toast-text">Entre na sua conta para interagir com a plataforma.</p>
+        <div class="visitor-toast-actions">
+            <a href="login.html" class="btn btn-primary btn-sm">Entrar</a>
+            <a href="cadastro.html" class="btn btn-secondary btn-sm">Criar Conta</a>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>
