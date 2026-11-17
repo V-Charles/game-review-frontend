@@ -1564,12 +1564,414 @@ function initReviewsPage() {
     loadReviewsAndGames();
 }
 
+function initListsPage() {
+    const listsGrid = document.getElementById('lists-grid');
+    if (!listsGrid) {
+        return;
+    }
+
+    const session = requireAuth();
+    if (!session) {
+        return;
+    }
+
+    const listsFeedback = document.getElementById('lists-feedback');
+    const listModalFeedback = document.getElementById('list-modal-feedback');
+    const listFilterButtons = document.querySelectorAll('[data-list-filter]');
+    const listsEmptyState = document.getElementById('lists-empty-state');
+    const listForm = document.getElementById('list-form');
+    const listGamesChecklist = document.getElementById('list-games-checklist');
+    const reloadListGamesBtn = document.getElementById('reload-list-games');
+    const confirmDeleteListBtn = document.getElementById('confirm-delete-list');
+
+    let listsCache = [];
+    let gamesCache = [];
+    let activeFilter = 'all';
+    let isLoadingGames = false;
+
+    function renderGamesChecklist(selectedIds = []) {
+        if (!listGamesChecklist) {
+            return;
+        }
+        const selectedSet = new Set(selectedIds.map(String));
+
+        if (!gamesCache.length) {
+            listGamesChecklist.innerHTML = '<p class="mono-label">Nenhum jogo cadastrado no catálogo até o momento.</p>';
+            if (reloadListGamesBtn) {
+                reloadListGamesBtn.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (reloadListGamesBtn) {
+            reloadListGamesBtn.classList.add('hidden');
+        }
+
+        listGamesChecklist.innerHTML = gamesCache.map((game) => {
+            const id = String(game.id);
+            const title = escapeHtml(game.titulo || game.nome || `Jogo #${id}`);
+            const checkedAttr = selectedSet.has(id) ? 'checked' : '';
+            return `
+                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; cursor: pointer;">
+                    <input type="checkbox" name="listGames" value="${escapeHtml(id)}" ${checkedAttr}>
+                    <span>${title}</span>
+                </label>
+            `;
+        }).join('');
+    }
+
+    async function refreshListGames(selectedIds = []) {
+        if (isLoadingGames) {
+            return;
+        }
+        isLoadingGames = true;
+        hideFeedbackBanner(listModalFeedback);
+
+        if (reloadListGamesBtn) {
+            reloadListGamesBtn.disabled = true;
+            reloadListGamesBtn.textContent = 'Carregando...';
+        }
+
+        if (listGamesChecklist && !gamesCache.length) {
+            listGamesChecklist.innerHTML = '<p class="mono-label">Carregando catálogo de jogos...</p>';
+        }
+
+        try {
+            const gamesPayload = await apiRequest('/jogos', { method: 'GET' });
+            gamesCache = extractListFromResponse(gamesPayload);
+            renderGamesChecklist(selectedIds);
+        } catch (error) {
+            if (error.status === 401 || error.status === 403) {
+                clearSession();
+                window.location.href = 'login.html';
+                return;
+            }
+            if (listGamesChecklist) {
+                listGamesChecklist.innerHTML = '<p class="mono-label">Erro ao carregar catálogo de jogos.</p>';
+            }
+            if (reloadListGamesBtn) {
+                reloadListGamesBtn.classList.remove('hidden');
+            }
+            const errMsg = error.message || 'Não foi possível carregar os jogos.';
+            showFeedbackBanner(listModalFeedback, errMsg, 'error');
+            showFeedbackBanner(listsFeedback, errMsg, 'error');
+        } finally {
+            isLoadingGames = false;
+            if (reloadListGamesBtn) {
+                reloadListGamesBtn.disabled = false;
+                reloadListGamesBtn.textContent = 'Recarregar jogos';
+            }
+        }
+    }
+
+    function resolveListAuthorInfo(list) {
+        const directUser = list.usuario;
+        const authorId = directUser && directUser.id
+            ? String(directUser.id)
+            : (list.usuarioId ? String(list.usuarioId) : '');
+        const authorName = (directUser && (directUser.userName || directUser.username))
+            || list.usuarioUserName
+            || 'jogador';
+
+        const isOwnerById = authorId && String(session.id) === authorId;
+        const isOwnerByName = !authorId && authorName.toLowerCase() === String(session.userName || '').toLowerCase();
+
+        return {
+            id: authorId,
+            name: authorName,
+            isOwner: Boolean(isOwnerById || isOwnerByName)
+        };
+    }
+
+    function resolveListGames(list) {
+        const rawGames = Array.isArray(list.jogos) ? list.jogos : [];
+        return rawGames.map((item) => {
+            if (item && typeof item === 'object') {
+                const id = String(item.id || '');
+                const cached = gamesCache.find((g) => String(g.id) === id);
+                return {
+                    id,
+                    title: item.titulo || item.nome || (cached ? (cached.titulo || cached.nome) : `Jogo #${id}`)
+                };
+            }
+            const id = String(item);
+            const cached = gamesCache.find((g) => String(g.id) === id);
+            return {
+                id,
+                title: cached ? (cached.titulo || cached.nome) : `Jogo #${id}`
+            };
+        }).filter((g) => g.id);
+    }
+
+    function renderLists(lists) {
+        const filtered = lists.filter((list) => {
+            const isPublic = list.isPublica !== false && list.publica !== false;
+            const authorInfo = resolveListAuthorInfo(list);
+
+            if (activeFilter === 'public') {
+                return isPublic;
+            }
+            if (activeFilter === 'mine') {
+                return authorInfo.isOwner;
+            }
+            return isPublic || authorInfo.isOwner;
+        });
+
+        if (!lists.length) {
+            listsGrid.innerHTML = '';
+            if (listsEmptyState) {
+                listsEmptyState.querySelector('p').textContent = 'Nenhuma lista cadastrada até o momento. Clique em "+ Nova Lista" para criar a primeira.';
+                listsEmptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (!filtered.length) {
+            listsGrid.innerHTML = '';
+            if (listsEmptyState) {
+                listsEmptyState.querySelector('p').textContent = 'Nenhuma lista encontrada para o filtro selecionado.';
+                listsEmptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (listsEmptyState) {
+            listsEmptyState.classList.add('hidden');
+        }
+
+        listsGrid.innerHTML = filtered.map((list) => {
+            const id = list.id;
+            const name = escapeHtml(list.nome || 'Lista sem nome');
+            const description = escapeHtml(list.descricao || 'Coleção temática de jogos.');
+            const isPublic = list.isPublica !== false && list.publica !== false;
+            const visibilityBadge = isPublic
+                ? '<span class="badge badge-success">PÚBLICA</span>'
+                : '<span class="badge badge-violet">PRIVADA</span>';
+            const authorInfo = resolveListAuthorInfo(list);
+            const authorName = escapeHtml(authorInfo.name);
+            const resolvedGames = resolveListGames(list);
+            const gameIdsCsv = resolvedGames.map((g) => g.id).join(',');
+
+            const tagsHtml = resolvedGames.length
+                ? resolvedGames.map((game) => `<span class="badge badge-cyan">${escapeHtml(game.title)}</span>`).join('')
+                : '<span class="mono-label">Nenhum jogo vinculado</span>';
+
+            const ownerActionsHtml = authorInfo.isOwner
+                ? `
+                    <div class="card-actions">
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-open-modal="list-modal"
+                            data-modal-mode="edit"
+                            data-list-id="${escapeHtml(id)}"
+                            data-list-name="${name}"
+                            data-list-desc="${escapeHtml(list.descricao || '')}"
+                            data-list-public="${String(isPublic)}"
+                            data-list-games="${escapeHtml(gameIdsCsv)}">
+                            Editar
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm"
+                            data-open-modal="delete-list-modal"
+                            data-list-id="${escapeHtml(id)}"
+                            data-list-name="${name}">
+                            Excluir
+                        </button>
+                    </div>
+                `
+                : '';
+
+            return `
+                <article class="card list-card" data-list-public="${String(isPublic)}" data-list-owner="${String(authorInfo.isOwner)}">
+                    <div class="card-body">
+                        <div class="flex-between">
+                            ${visibilityBadge}
+                            <span class="mono-label">POR @${authorName}</span>
+                        </div>
+                        <h2 class="card-title">${name}</h2>
+                        <p class="card-description">${description}</p>
+                        <div class="tag-group">${tagsHtml}</div>
+                        ${ownerActionsHtml}
+                    </div>
+                    <div class="card-footer flex-between">
+                        <span class="mono-label">${resolvedGames.length} JOGO(S) VINCULADO(S)</span>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    async function loadListsAndGames() {
+        isLoadingGames = true;
+        try {
+            const [listsRes, gamesRes] = await Promise.allSettled([
+                apiRequest('/listas', { method: 'GET' }),
+                apiRequest('/jogos', { method: 'GET' })
+            ]);
+
+            const unauthorized = [listsRes, gamesRes].find(
+                (res) => res.status === 'rejected' && (res.reason.status === 401 || res.reason.status === 403)
+            );
+            if (unauthorized) {
+                clearSession();
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (gamesRes.status === 'fulfilled') {
+                gamesCache = extractListFromResponse(gamesRes.value);
+                renderGamesChecklist();
+            } else {
+                if (listGamesChecklist) {
+                    listGamesChecklist.innerHTML = '<p class="mono-label">Erro ao carregar catálogo de jogos.</p>';
+                }
+                if (reloadListGamesBtn) {
+                    reloadListGamesBtn.classList.remove('hidden');
+                }
+                const errMsg = gamesRes.reason.message || 'Não foi possível carregar os jogos.';
+                showFeedbackBanner(listModalFeedback, errMsg, 'error');
+                showFeedbackBanner(listsFeedback, errMsg, 'error');
+            }
+
+            if (listsRes.status === 'fulfilled') {
+                listsCache = extractListFromResponse(listsRes.value);
+                renderLists(listsCache);
+            } else {
+                listsGrid.innerHTML = '';
+                showFeedbackBanner(listsFeedback, listsRes.reason.message || 'Não foi possível carregar as listas.', 'error');
+            }
+        } finally {
+            isLoadingGames = false;
+        }
+    }
+
+    listFilterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            activeFilter = button.dataset.listFilter || 'all';
+            listFilterButtons.forEach((btn) => {
+                btn.classList.toggle('active', btn === button);
+            });
+            renderLists(listsCache);
+        });
+    });
+
+    if (reloadListGamesBtn) {
+        reloadListGamesBtn.addEventListener('click', () => {
+            refreshListGames();
+        });
+    }
+
+    document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('[data-open-modal="list-modal"]');
+        if (!trigger) {
+            return;
+        }
+        hideFeedbackBanner(listModalFeedback);
+        const selectedIds = (trigger.dataset.listGames || '').split(',').filter(Boolean);
+        if (!gamesCache.length) {
+            refreshListGames(selectedIds);
+        } else {
+            renderGamesChecklist(selectedIds);
+        }
+    });
+
+    if (listForm) {
+        listForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            hideFeedbackBanner(listModalFeedback);
+
+            const id = document.getElementById('list-id').value.trim();
+            const nome = document.getElementById('list-name').value.trim();
+            const descricao = document.getElementById('list-description').value.trim() || null;
+            const isPublica = Boolean(document.getElementById('list-public').checked);
+            const checkedBoxes = document.querySelectorAll('#list-games-checklist input[name="listGames"]:checked');
+            const selectedGameIds = Array.from(checkedBoxes).map((checkbox) => Number(checkbox.value));
+            const submitButton = listForm.querySelector('button[type="submit"]');
+
+            if (!nome) {
+                showFeedbackBanner(listModalFeedback, 'Informe o nome da lista antes de salvar.', 'error');
+                return;
+            }
+
+            const usuarioIdNumber = Number(session.id);
+
+            const payload = {
+                nome,
+                descricao,
+                isPublica,
+                publica: isPublica,
+                usuarioId: usuarioIdNumber,
+                usuario: { id: usuarioIdNumber },
+                jogosIds: selectedGameIds,
+                jogos: selectedGameIds.map((gameId) => ({ id: gameId }))
+            };
+
+            setSubmitButtonState(submitButton, true, 'Salvando...', 'Salvar Lista');
+
+            try {
+                if (id) {
+                    await apiRequest(`/listas/${encodeURIComponent(id)}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                    showFeedbackBanner(listsFeedback, `Lista "${nome}" atualizada com sucesso.`, 'success');
+                } else {
+                    await apiRequest('/listas', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    showFeedbackBanner(listsFeedback, `Lista "${nome}" criada com sucesso.`, 'success');
+                }
+
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                listForm.reset();
+                await loadListsAndGames();
+            } catch (error) {
+                showFeedbackBanner(listModalFeedback, error.message || 'Não foi possível salvar a lista.', 'error');
+            } finally {
+                setSubmitButtonState(submitButton, false, 'Salvando...', 'Salvar Lista');
+            }
+        });
+    }
+
+    if (confirmDeleteListBtn) {
+        confirmDeleteListBtn.addEventListener('click', async () => {
+            const id = document.getElementById('delete-list-id').value.trim();
+            if (!id) {
+                return;
+            }
+
+            setSubmitButtonState(confirmDeleteListBtn, true, 'Excluindo...', 'Confirmar Exclusão');
+
+            try {
+                await apiRequest(`/listas/${encodeURIComponent(id)}`, {
+                    method: 'DELETE'
+                });
+
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                showFeedbackBanner(listsFeedback, 'Lista removida com sucesso.', 'success');
+                await loadListsAndGames();
+            } catch (error) {
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                showFeedbackBanner(listsFeedback, error.message || 'Não foi possível excluir a lista.', 'error');
+            } finally {
+                setSubmitButtonState(confirmDeleteListBtn, false, 'Excluindo...', 'Confirmar Exclusão');
+            }
+        });
+    }
+
+    loadListsAndGames();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     syncHeaderSession();
     loadHomePageData();
     initStudiosPage();
     initGamesPage();
     initReviewsPage();
+    initListsPage();
 
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login-form');

@@ -7,8 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameForm = document.getElementById('game-form');
     const studioForm = document.getElementById('studio-form');
     const reviewForm = document.getElementById('review-form');
-    const listFilterButtons = document.querySelectorAll('[data-list-filter]');
-    const listsEmptyState = document.getElementById('lists-empty-state');
     const listForm = document.getElementById('list-form');
     const profileForm = document.getElementById('profile-form');
     const profileFeedback = document.getElementById('profile-feedback');
@@ -204,6 +202,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        if (modalId === 'delete-list-modal') {
+            const deleteIdInput = document.getElementById('delete-list-id');
+            const deleteNameText = document.getElementById('delete-list-name');
+            if (deleteIdInput) {
+                deleteIdInput.value = trigger.dataset.listId || '';
+            }
+            if (deleteNameText) {
+                deleteNameText.textContent = trigger.dataset.listName || '';
+            }
+        }
+
         openModal(modalId);
     });
 
@@ -244,46 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeAllModals();
         }
     });
-
-    listFilterButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            const filter = button.dataset.listFilter || 'all';
-            listFilterButtons.forEach((btn) => {
-                btn.classList.toggle('active', btn === button);
-            });
-
-            const cards = document.querySelectorAll('#lists-grid .list-card');
-            let visibleCount = 0;
-
-            cards.forEach((card) => {
-                const isPublic = card.dataset.listPublic === 'true';
-                const isOwner = card.dataset.listOwner === 'true';
-                let match = true;
-
-                if (filter === 'public') {
-                    match = isPublic;
-                } else if (filter === 'mine') {
-                    match = isOwner;
-                }
-
-                card.classList.toggle('hidden', !match);
-                if (match) {
-                    visibleCount += 1;
-                }
-            });
-
-            if (listsEmptyState) {
-                listsEmptyState.classList.toggle('hidden', visibleCount > 0);
-            }
-        });
-    });
-
-    if (listForm) {
-        listForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            closeAllModals();
-        });
-    }
 
     if (profileForm) {
         profileForm.addEventListener('submit', (event) => {

@@ -28,19 +28,19 @@
                 <a href="perfil.html" class="nav-link">Meu Perfil</a>
                 <div class="nav-auth-mobile">
                     <span class="user-badge">
-                        <span class="user-badge-name">@zReaperz</span>
-                        <span class="user-badge-id">#01</span>
+                        <span class="user-badge-name">@jogador</span>
+                        <span class="user-badge-id">#00</span>
                     </span>
-                    <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+                    <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
                 </div>
             </nav>
 
             <div class="header-actions">
                 <div class="user-badge">
-                    <span class="user-badge-name">@zReaperz</span>
-                    <span class="user-badge-id">#01</span>
+                    <span class="user-badge-name">@jogador</span>
+                    <span class="user-badge-id">#00</span>
                 </div>
-                <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+                <a href="index.html" class="btn btn-ghost btn-sm" data-logout>Sair</a>
             </div>
         </div>
     </header>
@@ -52,102 +52,23 @@
                     <div>
                         <span class="section-kicker">COLEÇÕES TEMÁTICAS</span>
                         <h1>Listas de Jogos</h1>
-                        <p>Explore seleções públicas da comunidade ou gerencie suas listas personalizadas.</p>
+                        <p>Organize seus títulos favoritos em coleções públicas ou privadas e explore recomendações da comunidade.</p>
                     </div>
                     <button type="button" class="btn btn-primary" data-open-modal="list-modal" data-modal-mode="create">+ Nova Lista</button>
                 </div>
 
-                <div class="pill-group" role="group" aria-label="Filtrar listas de jogos">
-                    <button type="button" class="pill-btn active" data-list-filter="all">Todas as Listas</button>
-                    <button type="button" class="pill-btn" data-list-filter="public">Públicas</button>
-                    <button type="button" class="pill-btn" data-list-filter="mine">Minhas Listas</button>
+                <div id="lists-feedback" class="form-feedback section-feedback hidden" role="status" aria-live="polite"></div>
+
+                <div class="toolbar">
+                    <button type="button" class="btn btn-secondary btn-sm active" data-list-filter="all">Todas as Listas</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-list-filter="public">Públicas</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-list-filter="mine">Minhas Listas</button>
                 </div>
 
                 <div id="lists-grid" class="grid-2">
-                    <article class="card list-card" data-list-public="true" data-list-owner="true">
-                        <div class="card-body">
-                            <div class="flex-between">
-                                <span class="badge badge-success">PÚBLICA</span>
-                                <span class="mono-label">POR @zReaperz</span>
-                            </div>
-                            <h2 class="card-title">Favoritos Competitivos & Táticos</h2>
-                            <p class="card-description">Jogos focados em estratégia, comunicação em equipe e alta rejogabilidade.</p>
-                            <div class="tag-group">
-                                <span class="badge badge-cyan">Tom Clancy's Rainbow Six Siege</span>
-                                <span class="badge badge-cyan">Cyberpunk 2077</span>
-                            </div>
-                        </div>
-                        <div class="card-footer flex-between">
-                            <span class="mono-label">2 JOGOS VINCULADOS</span>
-                            <div class="flex-between">
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    data-open-modal="list-modal"
-                                    data-modal-mode="edit"
-                                    data-list-id="1"
-                                    data-list-name="Favoritos Competitivos & Táticos"
-                                    data-list-desc="Jogos focados em estratégia, comunicação em equipe e alta rejogabilidade."
-                                    data-list-public="true"
-                                    data-list-games="1,2">
-                                    Editar
-                                </button>
-                                <button type="button" class="btn btn-danger btn-sm">Excluir</button>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="card list-card" data-list-public="true" data-list-owner="false">
-                        <div class="card-body">
-                            <div class="flex-between">
-                                <span class="badge badge-success">PÚBLICA</span>
-                                <span class="mono-label">POR @NyxValkyrie</span>
-                            </div>
-                            <h2 class="card-title">Mundos Abertos Indispensáveis</h2>
-                            <p class="card-description">Experiências imersivas com dezenas de horas de exploração e narrativa.</p>
-                            <div class="tag-group">
-                                <span class="badge badge-cyan">Elden Ring</span>
-                                <span class="badge badge-cyan">Cyberpunk 2077</span>
-                                <span class="badge badge-cyan">Red Dead Redemption 2</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <span class="mono-label">3 JOGOS VINCULADOS</span>
-                        </div>
-                    </article>
-
-                    <article class="card list-card" data-list-public="false" data-list-owner="true">
-                        <div class="card-body">
-                            <div class="flex-between">
-                                <span class="badge badge-warning">PRIVADA</span>
-                                <span class="mono-label">POR @zReaperz</span>
-                            </div>
-                            <h2 class="card-title">Backlog 2026 — Prioridades</h2>
-                            <p class="card-description">Títulos reservados para finalizar ao longo da temporada.</p>
-                            <div class="tag-group">
-                                <span class="badge badge-cyan">Elden Ring</span>
-                                <span class="badge badge-cyan">Red Dead Redemption 2</span>
-                            </div>
-                        </div>
-                        <div class="card-footer flex-between">
-                            <span class="mono-label">2 JOGOS VINCULADOS</span>
-                            <div class="flex-between">
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    data-open-modal="list-modal"
-                                    data-modal-mode="edit"
-                                    data-list-id="3"
-                                    data-list-name="Backlog 2026 — Prioridades"
-                                    data-list-desc="Títulos reservados para finalizar ao longo da temporada."
-                                    data-list-public="false"
-                                    data-list-games="3,4">
-                                    Editar
-                                </button>
-                                <button type="button" class="btn btn-danger btn-sm">Excluir</button>
-                            </div>
-                        </div>
-                    </article>
+                    <div class="empty-state">
+                        <p>Carregando listas de jogos...</p>
+                    </div>
                 </div>
 
                 <div id="lists-empty-state" class="empty-state hidden">
@@ -171,51 +92,41 @@
         <div class="modal-dialog">
             <div class="modal-header">
                 <div>
-                    <span class="section-kicker">COLEÇÃO DE JOGOS</span>
+                    <span class="section-kicker">GERENCIAR COLEÇÃO</span>
                     <h2 id="list-modal-title">Nova Lista de Jogos</h2>
                 </div>
                 <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
             </div>
+
+            <div id="list-modal-feedback" class="form-feedback hidden" role="alert"></div>
 
             <form id="list-form" class="auth-form">
                 <input type="hidden" id="list-id" name="id">
 
                 <div class="form-group">
                     <label for="list-name" class="form-label">Nome da lista *</label>
-                    <input type="text" id="list-name" name="nome" class="form-input" placeholder="Ex: Favoritos da Vida" required>
+                    <input type="text" id="list-name" name="nome" class="form-input" placeholder="Ex: Melhores RPGs da Década" required>
                 </div>
 
                 <div class="form-group">
                     <label for="list-description" class="form-label">Descrição</label>
-                    <textarea id="list-description" name="descricao" class="form-input form-textarea" rows="3" maxlength="255" placeholder="Descreva o tema desta coleção..."></textarea>
+                    <textarea id="list-description" name="descricao" class="form-input form-textarea" placeholder="Descreva o tema ou critério desta coleção de jogos..."></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="checkbox-label">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" id="list-public" name="isPublica" checked>
-                        <span>Lista pública (visível para toda a comunidade)</span>
+                        <span>Lista pública (visível para outros jogadores da plataforma)</span>
                     </label>
                 </div>
 
                 <div class="form-group">
-                    <span class="form-label">Jogos na lista</span>
-                    <div id="list-games-checklist" class="checklist-box">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="listGames" value="1">
-                            <span>Tom Clancy's Rainbow Six Siege</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="listGames" value="2">
-                            <span>Cyberpunk 2077</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="listGames" value="3">
-                            <span>Elden Ring</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="listGames" value="4">
-                            <span>Red Dead Redemption 2</span>
-                        </label>
+                    <div class="flex-between">
+                        <span class="form-label">Jogos vinculados à lista</span>
+                        <button type="button" id="reload-list-games" class="btn btn-ghost btn-sm hidden">Recarregar jogos</button>
+                    </div>
+                    <div id="list-games-checklist" style="max-height: 180px; overflow-y: auto; padding: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; background: rgba(6, 8, 15, 0.45);">
+                        <p class="mono-label">Carregando catálogo de jogos...</p>
                     </div>
                 </div>
 
@@ -227,6 +138,27 @@
         </div>
     </div>
 
+    <div id="delete-list-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="delete-list-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">CONFIRMAÇÃO DE EXCLUSÃO</span>
+                    <h2 id="delete-list-title">Excluir Lista</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <p>Tem certeza de que deseja excluir a lista <strong id="delete-list-name"></strong>? Esta ação não poderá ser desfeita.</p>
+            <input type="hidden" id="delete-list-id">
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                <button type="button" id="confirm-delete-list" class="btn btn-danger">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
     <script src="js/ui.js"></script>
 </body>
 </html>
