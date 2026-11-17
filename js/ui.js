@@ -4,10 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const visitorToast = document.getElementById('visitor-toast');
     const visitorToastText = document.getElementById('visitor-toast-text');
     const closeVisitorToast = document.getElementById('close-visitor-toast');
-    const searchGamesForm = document.getElementById('search-games-form');
-    const searchGamesInput = document.getElementById('search-games-input');
-    const resetGamesSearch = document.getElementById('reset-games-search');
-    const gamesEmptyState = document.getElementById('games-empty-state');
     const gameForm = document.getElementById('game-form');
     const studioForm = document.getElementById('studio-form');
     const filterReviewsForm = document.getElementById('filter-reviews-form');
@@ -107,6 +103,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameForm.reset();
                 }
                 document.getElementById('game-id').value = '';
+            }
+        }
+
+        if (modalId === 'delete-game-modal') {
+            const deleteIdInput = document.getElementById('delete-game-id');
+            const deleteNameText = document.getElementById('delete-game-name');
+            if (deleteIdInput) {
+                deleteIdInput.value = trigger.dataset.gameId || '';
+            }
+            if (deleteNameText) {
+                deleteNameText.textContent = trigger.dataset.gameName || '';
             }
         }
 
@@ -223,47 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeAllModals();
         }
     });
-
-    if (searchGamesForm && searchGamesInput) {
-        searchGamesForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const query = searchGamesInput.value.trim().toLowerCase();
-            const cards = document.querySelectorAll('#games-grid .game-card');
-            let visibleCount = 0;
-
-            cards.forEach((card) => {
-                const title = card.dataset.gameTitle || '';
-                const match = title.includes(query);
-                card.classList.toggle('hidden', !match);
-                if (match) {
-                    visibleCount += 1;
-                }
-            });
-
-            if (gamesEmptyState) {
-                gamesEmptyState.classList.toggle('hidden', visibleCount > 0);
-            }
-        });
-    }
-
-    if (resetGamesSearch && searchGamesInput) {
-        resetGamesSearch.addEventListener('click', () => {
-            searchGamesInput.value = '';
-            document.querySelectorAll('#games-grid .game-card').forEach((card) => {
-                card.classList.remove('hidden');
-            });
-            if (gamesEmptyState) {
-                gamesEmptyState.classList.add('hidden');
-            }
-        });
-    }
-
-    if (gameForm) {
-        gameForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            closeAllModals();
-        });
-    }
 
     if (filterReviewsForm && filterReviewsGame) {
         filterReviewsForm.addEventListener('submit', (event) => {

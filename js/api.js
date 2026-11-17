@@ -82,6 +82,13 @@ function formatDateBr(dateValue) {
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
+function normalizeIsoDate(dateValue) {
+    if (!dateValue) {
+        return '';
+    }
+    return String(dateValue).split('T')[0];
+}
+
 function extractListFromResponse(payload) {
     if (!payload) {
         return [];
@@ -92,12 +99,27 @@ function extractListFromResponse(payload) {
     if (Array.isArray(payload.content)) {
         return payload.content;
     }
+    if (payload._embedded && typeof payload._embedded === 'object') {
+        const embeddedList = Object.values(payload._embedded).find((value) => Array.isArray(value));
+        if (embeddedList) {
+            return embeddedList;
+        }
+    }
+    if (typeof payload === 'object') {
+        const directArray = Object.values(payload).find((value) => Array.isArray(value));
+        if (directArray) {
+            return directArray;
+        }
+    }
     return [];
 }
 
 function extractTotalCount(payload, list) {
     if (payload && typeof payload.totalElements === 'number') {
         return payload.totalElements;
+    }
+    if (payload && payload.page && typeof payload.page.totalElements === 'number') {
+        return payload.page.totalElements;
     }
     return list.length;
 }
@@ -114,6 +136,14 @@ function getReviewStatusBadgeClass(status) {
         return 'badge-warning';
     }
     return 'badge-cyan';
+}
+
+function buildGameCoverStyle(coverUrl) {
+    if (!coverUrl) {
+        return '';
+    }
+    const safeUrl = escapeHtml(coverUrl);
+    return `style="background-image: linear-gradient(to bottom, rgba(6, 8, 15, 0.35), rgba(6, 8, 15, 0.88)), url('${safeUrl}'); background-size: cover; background-position: center;"`;
 }
 
 function extractApiErrorMessage(data, status) {
@@ -167,6 +197,11 @@ async function apiRequest(endpoint, options = {}) {
         method,
         headers
     };
+
+    if (method === 'GET' && !fetchOptions.cache) {
+        fetchOptions.cache = 'no-store';
+    }
+
     delete fetchOptions.skipAuth;
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
@@ -275,6 +310,8 @@ function renderHomeGames(games) {
 
     grid.innerHTML = games.slice(0, 4).map((game, index) => {
         const coverClass = `cover-variant-${(index % 4) + 1}`;
+        const coverUrl = game.capaUrl || game.urlCapa || '';
+        const coverStyle = buildGameCoverStyle(coverUrl);
         const title = escapeHtml(game.titulo || game.nome || 'Jogo sem título');
         const studioName = escapeHtml(
             (game.estudio && (game.estudio.nomeEstudio || game.estudio.nome)) ||
@@ -286,7 +323,7 @@ function renderHomeGames(games) {
 
         return `
             <article class="card">
-                <div class="game-visual ${coverClass}">
+                <div class="game-visual ${coverClass}" ${coverStyle}>
                     <span class="badge badge-cyan">${igdbBadge}</span>
                     <span class="game-genre">CATÁLOGO OFICIAL</span>
                 </div>
@@ -322,7 +359,7 @@ function renderHomeStudios(studios) {
 
     grid.innerHTML = studios.slice(0, 3).map((studio) => {
         const name = escapeHtml(studio.nomeEstudio || studio.nome || 'Estúdio');
-        const country = escapeHtml(studio.paisFundacao || studio.pais || 'País não informado');
+        const country = escapeHtml(studio.paisFundacao || studio.paisOrigem || studio.pais || 'País não informado');
         const idFormatted = String(studio.id || 0).padStart(2, '0');
 
         return `
@@ -594,7 +631,7 @@ function initStudiosPage() {
         const filtered = query
             ? studios.filter((studio) => {
                 const name = String(studio.nomeEstudio || studio.nome || '').toLowerCase();
-                const country = String(studio.paisFundacao || studio.pais || '').toLowerCase();
+                const country = String(studio.paisFundacao || studio.paisOrigem || studio.pais || '').toLowerCase();
                 return name.includes(query) || country.includes(query);
             })
             : studios;
@@ -625,7 +662,7 @@ function initStudiosPage() {
             const id = studio.id;
             const idFormatted = String(id || 0).padStart(2, '0');
             const name = escapeHtml(studio.nomeEstudio || studio.nome || 'Estúdio');
-            const country = escapeHtml(studio.paisFundacao || studio.pais || 'País não informado');
+            const country = escapeHtml(studio.paisFundacao || studio.paisOrigem || studio.pais || 'País não informado');
 
             return `
                 <article class="card studio-card">
@@ -758,10 +795,343 @@ function initStudiosPage() {
     loadStudios();
 }
 
+function initGamesPage() {
+    const gamesGrid = document.getElementById('games-grid');
+    if (!gamesGrid) {
+        return;
+    }
+
+    const session = requireAuth();
+    if (!session) {
+        return;
+    }
+
+    const gamesFeedback = document.getElementById('games-feedback');
+    const searchGamesForm = document.getElementById('search-games-form');
+    const searchGamesInput = document.getElementById('search-games-input');
+    const resetGamesSearch = document.getElementById('reset-games-search');
+    const gamesEmptyState = document.getElementById('games-empty-state');
+    const gameForm = document.getElementById('game-form');
+    const gameStudioSelect = document.getElementById('game-studio');
+    const confirmDeleteGameBtn = document.getElementById('confirm-delete-game');
+
+    let gamesCache = [];
+    let studiosCache = [];
+    let isLoadingStudios = false;
+
+    function populateStudioSelect(selectedValue = '') {
+        if (!gameStudioSelect) {
+            return;
+        }
+        if (!studiosCache.length) {
+            gameStudioSelect.innerHTML = '<option value="">Nenhum estúdio cadastrado (cadastre em Estúdios)</option>';
+            return;
+        }
+        const optionsHtml = studiosCache.map((studio) => {
+            const id = escapeHtml(studio.id);
+            const name = escapeHtml(studio.nomeEstudio || studio.nome || 'Estúdio');
+            return `<option value="${id}">${name}</option>`;
+        }).join('');
+        gameStudioSelect.innerHTML = `<option value="">Selecione um estúdio...</option>${optionsHtml}`;
+        if (selectedValue) {
+            gameStudioSelect.value = String(selectedValue);
+        }
+    }
+
+    async function refreshStudiosSelect(selectedValue = '') {
+        if (isLoadingStudios) {
+            return;
+        }
+        isLoadingStudios = true;
+        if (gameStudioSelect && !studiosCache.length) {
+            gameStudioSelect.innerHTML = '<option value="">Carregando estúdios...</option>';
+        }
+        try {
+            const studiosPayload = await apiRequest('/estudios', { method: 'GET' });
+            studiosCache = extractListFromResponse(studiosPayload);
+            populateStudioSelect(selectedValue);
+        } catch (error) {
+            if (error.status === 401 || error.status === 403) {
+                clearSession();
+                window.location.href = 'login.html';
+                return;
+            }
+            if (gameStudioSelect) {
+                gameStudioSelect.innerHTML = '<option value="">Erro ao carregar estúdios</option>';
+            }
+            showFeedbackBanner(gamesFeedback, error.message || 'Não foi possível carregar a lista de estúdios.', 'error');
+        } finally {
+            isLoadingStudios = false;
+        }
+    }
+
+    function resolveGameStudioInfo(game) {
+        const directStudio = game.estudio;
+        if (directStudio && directStudio.id) {
+            return {
+                id: String(directStudio.id),
+                name: directStudio.nomeEstudio || directStudio.nome || 'Estúdio não informado'
+            };
+        }
+        const studioId = game.estudioId ? String(game.estudioId) : '';
+        if (studioId) {
+            const matched = studiosCache.find((item) => String(item.id) === studioId);
+            return {
+                id: studioId,
+                name: matched ? (matched.nomeEstudio || matched.nome) : (game.nomeEstudio || `Estúdio #${studioId}`)
+            };
+        }
+        return {
+            id: '',
+            name: game.nomeEstudio || 'Estúdio não informado'
+        };
+    }
+
+    function renderGames(games) {
+        const query = searchGamesInput ? searchGamesInput.value.trim().toLowerCase() : '';
+        const filtered = query
+            ? games.filter((game) => {
+                const title = String(game.titulo || game.nome || '').toLowerCase();
+                const studioInfo = resolveGameStudioInfo(game);
+                return title.includes(query) || studioInfo.name.toLowerCase().includes(query);
+            })
+            : games;
+
+        if (!games.length) {
+            gamesGrid.innerHTML = '';
+            if (gamesEmptyState) {
+                gamesEmptyState.querySelector('p').textContent = 'Nenhum jogo cadastrado até o momento. Clique em "+ Novo Jogo" para adicionar.';
+                gamesEmptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (!filtered.length) {
+            gamesGrid.innerHTML = '';
+            if (gamesEmptyState) {
+                gamesEmptyState.querySelector('p').textContent = 'Nenhum jogo encontrado para o filtro aplicado.';
+                gamesEmptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (gamesEmptyState) {
+            gamesEmptyState.classList.add('hidden');
+        }
+
+        gamesGrid.innerHTML = filtered.map((game, index) => {
+            const id = game.id;
+            const idFormatted = String(id || 0).padStart(2, '0');
+            const title = escapeHtml(game.titulo || game.nome || 'Jogo sem título');
+            const studioInfo = resolveGameStudioInfo(game);
+            const studioName = escapeHtml(studioInfo.name);
+            const studioId = escapeHtml(studioInfo.id);
+            const releaseIso = normalizeIsoDate(game.dataLancamento);
+            const releaseBr = formatDateBr(game.dataLancamento);
+            const igdbId = game.igdbId ? String(game.igdbId) : '';
+            const igdbBadge = igdbId ? `IGDB #${escapeHtml(igdbId)}` : `ID #${escapeHtml(idFormatted)}`;
+            const coverUrl = game.capaUrl || game.urlCapa || '';
+            const coverClass = `cover-variant-${(index % 4) + 1}`;
+            const coverStyle = buildGameCoverStyle(coverUrl);
+
+            return `
+                <article class="card game-card">
+                    <div class="game-visual ${coverClass}" ${coverStyle}>
+                        <span class="badge badge-cyan">${igdbBadge}</span>
+                        <span class="game-genre">CATÁLOGO OFICIAL</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="flex-between">
+                            <span class="badge badge-violet">${studioName}</span>
+                        </div>
+                        <h2 class="card-title">${title}</h2>
+                        <p class="card-meta">Lançamento: ${escapeHtml(releaseBr)}</p>
+                    </div>
+                    <div class="card-footer flex-between">
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-open-modal="game-modal"
+                            data-modal-mode="edit"
+                            data-game-id="${escapeHtml(id)}"
+                            data-game-name="${title}"
+                            data-game-studio="${studioId}"
+                            data-game-release="${escapeHtml(releaseIso)}"
+                            data-game-igdb="${escapeHtml(igdbId)}"
+                            data-game-cover="${escapeHtml(coverUrl)}">
+                            Editar
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm"
+                            data-open-modal="delete-game-modal"
+                            data-game-id="${escapeHtml(id)}"
+                            data-game-name="${title}">
+                            Excluir
+                        </button>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    async function loadGamesAndStudios() {
+        isLoadingStudios = true;
+        try {
+            const [gamesRes, studiosRes] = await Promise.allSettled([
+                apiRequest('/jogos', { method: 'GET' }),
+                apiRequest('/estudios', { method: 'GET' })
+            ]);
+
+            const unauthorized = [gamesRes, studiosRes].find(
+                (res) => res.status === 'rejected' && (res.reason.status === 401 || res.reason.status === 403)
+            );
+            if (unauthorized) {
+                clearSession();
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (studiosRes.status === 'fulfilled') {
+                studiosCache = extractListFromResponse(studiosRes.value);
+                populateStudioSelect();
+            } else {
+                if (gameStudioSelect) {
+                    gameStudioSelect.innerHTML = '<option value="">Erro ao carregar estúdios</option>';
+                }
+                showFeedbackBanner(gamesFeedback, studiosRes.reason.message || 'Não foi possível carregar os estúdios.', 'error');
+            }
+
+            if (gamesRes.status === 'fulfilled') {
+                gamesCache = extractListFromResponse(gamesRes.value);
+                renderGames(gamesCache);
+            } else {
+                gamesGrid.innerHTML = '';
+                showFeedbackBanner(gamesFeedback, gamesRes.reason.message || 'Não foi possível carregar o catálogo de jogos.', 'error');
+            }
+        } finally {
+            isLoadingStudios = false;
+        }
+    }
+
+    document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('[data-open-modal="game-modal"]');
+        if (!trigger) {
+            return;
+        }
+        const targetStudioId = trigger.dataset.gameStudio || '';
+        if (!studiosCache.length) {
+            refreshStudiosSelect(targetStudioId);
+        } else {
+            populateStudioSelect(targetStudioId);
+        }
+    });
+
+    if (searchGamesForm) {
+        searchGamesForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            renderGames(gamesCache);
+        });
+    }
+
+    if (resetGamesSearch && searchGamesInput) {
+        resetGamesSearch.addEventListener('click', () => {
+            searchGamesInput.value = '';
+            renderGames(gamesCache);
+        });
+    }
+
+    if (gameForm) {
+        gameForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const id = document.getElementById('game-id').value.trim();
+            const titulo = document.getElementById('game-title').value.trim();
+            const studioValue = document.getElementById('game-studio').value.trim();
+            const dataLancamento = document.getElementById('game-release').value.trim() || null;
+            const igdbRaw = document.getElementById('game-igdb').value.trim();
+            const capaUrl = document.getElementById('game-cover').value.trim() || null;
+            const submitButton = gameForm.querySelector('button[type="submit"]');
+
+            if (!studioValue) {
+                showFeedbackBanner(gamesFeedback, 'Selecione um estúdio válido antes de salvar o jogo.', 'error');
+                return;
+            }
+
+            const studioIdNumber = Number(studioValue);
+            const igdbIdNumber = igdbRaw ? Number(igdbRaw) : null;
+
+            const payload = {
+                titulo,
+                dataLancamento,
+                igdbId: igdbIdNumber,
+                capaUrl,
+                estudioId: studioIdNumber,
+                estudio: { id: studioIdNumber }
+            };
+
+            setSubmitButtonState(submitButton, true, 'Salvando...', 'Salvar Jogo');
+
+            try {
+                if (id) {
+                    await apiRequest(`/jogos/${encodeURIComponent(id)}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                    showFeedbackBanner(gamesFeedback, `Jogo "${titulo}" atualizado com sucesso.`, 'success');
+                } else {
+                    await apiRequest('/jogos', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    showFeedbackBanner(gamesFeedback, `Jogo "${titulo}" cadastrado com sucesso.`, 'success');
+                }
+
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                gameForm.reset();
+                await loadGamesAndStudios();
+            } catch (error) {
+                showFeedbackBanner(gamesFeedback, error.message || 'Não foi possível salvar o jogo.', 'error');
+            } finally {
+                setSubmitButtonState(submitButton, false, 'Salvando...', 'Salvar Jogo');
+            }
+        });
+    }
+
+    if (confirmDeleteGameBtn) {
+        confirmDeleteGameBtn.addEventListener('click', async () => {
+            const id = document.getElementById('delete-game-id').value.trim();
+            if (!id) {
+                return;
+            }
+
+            setSubmitButtonState(confirmDeleteGameBtn, true, 'Excluindo...', 'Confirmar Exclusão');
+
+            try {
+                await apiRequest(`/jogos/${encodeURIComponent(id)}`, {
+                    method: 'DELETE'
+                });
+
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                showFeedbackBanner(gamesFeedback, 'Jogo removido com sucesso.', 'success');
+                await loadGamesAndStudios();
+            } catch (error) {
+                document.querySelectorAll('.modal-backdrop').forEach((modal) => modal.classList.add('hidden'));
+                showFeedbackBanner(gamesFeedback, error.message || 'Não foi possível excluir o jogo.', 'error');
+            } finally {
+                setSubmitButtonState(confirmDeleteGameBtn, false, 'Excluindo...', 'Confirmar Exclusão');
+            }
+        });
+    }
+
+    loadGamesAndStudios();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     syncHeaderSession();
     loadHomePageData();
     initStudiosPage();
+    initGamesPage();
 
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login-form');
