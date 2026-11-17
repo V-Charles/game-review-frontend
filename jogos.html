@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Jogos — GameReview</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </a>
+
+            <button type="button" id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+
+            <nav id="nav-menu" class="nav-menu" aria-label="Navegação principal">
+                <a href="jogos.html" class="nav-link active">Jogos</a>
+                <a href="estudios.html" class="nav-link">Estúdios</a>
+                <a href="avaliacoes.html" class="nav-link">Avaliações</a>
+                <a href="listas.html" class="nav-link">Listas</a>
+                <a href="perfil.html" class="nav-link">Meu Perfil</a>
+                <div class="nav-auth-mobile">
+                    <span class="user-badge">
+                        <span class="user-badge-name">@zReaperz</span>
+                        <span class="user-badge-id">#01</span>
+                    </span>
+                    <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+                </div>
+            </nav>
+
+            <div class="header-actions">
+                <div class="user-badge">
+                    <span class="user-badge-name">@zReaperz</span>
+                    <span class="user-badge-id">#01</span>
+                </div>
+                <a href="index.html" class="btn btn-ghost btn-sm">Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section class="section-block">
+            <div class="container">
+                <div class="page-header">
+                    <div>
+                        <span class="section-kicker">CATÁLOGO OFICIAL</span>
+                        <h1>Jogos Cadastrados</h1>
+                        <p>Pesquise títulos no acervo, cadastre novos lançamentos ou edite informações existentes.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-open-modal="game-modal" data-modal-mode="create">+ Novo Jogo</button>
+                </div>
+
+                <form id="search-games-form" class="toolbar">
+                    <input type="search" id="search-games-input" class="form-input" placeholder="Buscar jogo pelo título...">
+                    <button type="submit" class="btn btn-secondary">Buscar</button>
+                    <button type="button" id="reset-games-search" class="btn btn-ghost">Limpar</button>
+                </form>
+
+                <div id="games-grid" class="grid-4">
+                    <article class="card game-card" data-game-title="tom clancy's rainbow six siege">
+                        <div class="game-visual cover-variant-1">
+                            <span class="badge badge-cyan">IGDB #7360</span>
+                            <span class="game-genre">TACTICAL FPS</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">Ubisoft Montreal</span>
+                                <span class="score-chip">9.5</span>
+                            </div>
+                            <h2 class="card-title">Tom Clancy's Rainbow Six Siege</h2>
+                            <p class="card-meta">Lançamento: 01/12/2015</p>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-sm"
+                                data-open-modal="game-modal"
+                                data-modal-mode="edit"
+                                data-game-id="1"
+                                data-game-name="Tom Clancy's Rainbow Six Siege"
+                                data-game-studio="1"
+                                data-game-release="2015-12-01"
+                                data-game-igdb="7360"
+                                data-game-cover="">
+                                Editar
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm">Excluir</button>
+                        </div>
+                    </article>
+
+                    <article class="card game-card" data-game-title="cyberpunk 2077">
+                        <div class="game-visual cover-variant-2">
+                            <span class="badge badge-cyan">IGDB #1877</span>
+                            <span class="game-genre">SCI-FI RPG</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">CD Projekt Red</span>
+                                <span class="score-chip">9.2</span>
+                            </div>
+                            <h2 class="card-title">Cyberpunk 2077</h2>
+                            <p class="card-meta">Lançamento: 10/12/2020</p>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-sm"
+                                data-open-modal="game-modal"
+                                data-modal-mode="edit"
+                                data-game-id="2"
+                                data-game-name="Cyberpunk 2077"
+                                data-game-studio="2"
+                                data-game-release="2020-12-10"
+                                data-game-igdb="1877"
+                                data-game-cover="">
+                                Editar
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm">Excluir</button>
+                        </div>
+                    </article>
+
+                    <article class="card game-card" data-game-title="elden ring">
+                        <div class="game-visual cover-variant-3">
+                            <span class="badge badge-cyan">IGDB #119133</span>
+                            <span class="game-genre">ACTION RPG</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">FromSoftware</span>
+                                <span class="score-chip">9.8</span>
+                            </div>
+                            <h2 class="card-title">Elden Ring</h2>
+                            <p class="card-meta">Lançamento: 25/02/2022</p>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-sm"
+                                data-open-modal="game-modal"
+                                data-modal-mode="edit"
+                                data-game-id="3"
+                                data-game-name="Elden Ring"
+                                data-game-studio="3"
+                                data-game-release="2022-02-25"
+                                data-game-igdb="119133"
+                                data-game-cover="">
+                                Editar
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm">Excluir</button>
+                        </div>
+                    </article>
+
+                    <article class="card game-card" data-game-title="red dead redemption 2">
+                        <div class="game-visual cover-variant-4">
+                            <span class="badge badge-cyan">IGDB #25076</span>
+                            <span class="game-genre">ACTION ADVENTURE</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-between">
+                                <span class="badge badge-violet">Rockstar Games</span>
+                                <span class="score-chip">9.7</span>
+                            </div>
+                            <h2 class="card-title">Red Dead Redemption 2</h2>
+                            <p class="card-meta">Lançamento: 26/10/2018</p>
+                        </div>
+                        <div class="card-footer flex-between">
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-sm"
+                                data-open-modal="game-modal"
+                                data-modal-mode="edit"
+                                data-game-id="4"
+                                data-game-name="Red Dead Redemption 2"
+                                data-game-studio="4"
+                                data-game-release="2018-10-26"
+                                data-game-igdb="25076"
+                                data-game-cover="">
+                                Editar
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm">Excluir</button>
+                        </div>
+                    </article>
+                </div>
+
+                <div id="games-empty-state" class="empty-state hidden">
+                    <p>Nenhum jogo encontrado para o termo pesquisado.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="brand">
+                <span class="brand-mark">GR</span>
+                <span class="brand-name">GAME<span class="brand-accent">REVIEW</span></span>
+            </div>
+            <p class="footer-copy">GameReview © 2026 — Plataforma de Catálogo e Avaliação de Jogos.</p>
+        </div>
+    </footer>
+
+    <div id="game-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="game-modal-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="section-kicker">GERENCIAR CATÁLOGO</span>
+                    <h2 id="game-modal-title">Cadastrar Novo Jogo</h2>
+                </div>
+                <button type="button" class="toast-close" data-close-modal aria-label="Fechar modal">×</button>
+            </div>
+
+            <form id="game-form" class="auth-form">
+                <input type="hidden" id="game-id" name="id">
+
+                <div class="form-group">
+                    <label for="game-title" class="form-label">Título do jogo *</label>
+                    <input type="text" id="game-title" name="titulo" class="form-input" placeholder="Ex: Tom Clancy's Rainbow Six Siege" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="game-studio" class="form-label">Estúdio *</label>
+                        <select id="game-studio" name="estudioId" class="form-select" required>
+                            <option value="">Selecione um estúdio</option>
+                            <option value="1">Ubisoft Montreal</option>
+                            <option value="2">CD Projekt Red</option>
+                            <option value="3">FromSoftware</option>
+                            <option value="4">Rockstar Games</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="game-release" class="form-label">Data de lançamento</label>
+                        <input type="date" id="game-release" name="dataLancamento" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="game-igdb" class="form-label">ID IGDB (opcional)</label>
+                        <input type="number" id="game-igdb" name="igdbId" class="form-input" placeholder="Ex: 7360" min="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="game-cover" class="form-label">URL da capa (opcional)</label>
+                        <input type="url" id="game-cover" name="urlCapa" class="form-input" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Jogo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+</body>
+</html>
